@@ -617,15 +617,106 @@ If the address is valid, you should be able to get the exact line of code where 
 
 # Yocto
 
-## add new layer
+Before doing anything else, clone `poky`:
+
+```shell
+git clone git://git.yoctoproject.org/poky
+```
+
+You can choose the version that suits your needs on this [link](https://git.yoctoproject.org/cgit/cgit.cgi/poky/). Then, check it out. For example:
+
+```shell
+git checkout warrior
+```
+
+Before doing anything, be sure to position yourself in the `poky` folder and run:
+
+```shell
+source oe-init-build-dev
+```
+
+This will reposition you in the `poky/build` folder. The most important files here are `local.conf` and `bblayers.conf` in the `conf` subfolder.
+
+## layers
+
+All layers are stored in the `poky` folder and are named beginning withi the `meta-` keyword.
 
 ## list recipes
+
+The following command will give you a list of recipes, along with their corresponding layer:
 
 ```shell
 bitbake-layers show-recipes
 ```
 
+## qemu
+
+After you build the image, you can run it in `qemu` using:
+
+```shell
+runqemu <machine> [nographic]
+```
+
+The `<machine>` variable is the one you have set in `build/conf/local.conf` as the `MACHINE` variable. To be sure to be able to run `qemu`, you can use `qemuarm`, `qemuarm64` or `qemux86` for `MACHINE`, to name a few.
+
 ## add new recipe
+
+To add a new recipe named "example" add the `example` subfolder in the layer of your choice and there add the file `example_01.bb`. There are multiple ways to write a recipe, so we will cover a few, depending on the build system used.
+
+### common
+
+An ordinary recipe should contain this as a header:
+
+```shell
+SUMMARY = "Short summary"
+DESCRIPTION = "If description is empty, summary will be used."
+AUTHOR = "Stjepan Poljak <stjepan.poljak@protonmail.com>"
+HOMEPAGE = "https://github.com/StjepanPoljak"
+
+SECTION = "examples"
+DEPENDS = ""
+PRIORITY = "optional"
+
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+```
+
+You can check all these variables out on this [link](https://www.yoctoproject.org/docs/latest/ref-manual/ref-manual.html).
+
+## add new layer
+
+To add new layer, after running `source oe-init-build-end`, return to the poky folder and run:
+
+```shell
+bitbake-layers create-layer <layer_name>
+``` 
+
+It is customary to prefix the layer name with `meta-` keyword. This will create a simple folder structure for your layer. To add the new layer to the build, type in the `build` subfolder:
+
+```shell
+bitbake-layers add-layer <layer_name>
+```
+
+Or, even better, edit the `build/conf/bblayers.conf` to include your layer.
+
+## add new image
+
+Here is an example of an image recipe that inherits `core-image` and includes `core-image-minimal`:
+
+```shell
+SUMMARY = "Custom image"
+
+LICENSE = "MIT"
+
+inherit core-image
+require recipes-core/images/core-image-minimal.bb
+
+CORE_IMAGE_EXTRA_INSTALL = "example"
+```
+
+It is customary to put the `<image_name>.bb` file in the `<layer>/recipes-core/images/<image_name>` folder. The path in `require` line is necessary if you are including an image from another layer.
+
+Add your recipes to the `CORE_IMAGE_EXTRA_INSTALL` variable (here we only have one recipe named `example`).
 
 ## configure kernel
 
