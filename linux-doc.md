@@ -101,17 +101,17 @@ ls -tr
 
 ## grep
 
-|  switch   |      meaning      |
-|-----------|-------------------|
-|   `-R`    | recursive         |
-| `--color` | add color         |
-|   `-n`    | print line        |
-|   `-v`    | reverse           |
-|   `-i`    | ignore case       |
-|   `-B`    | show lines before |
-|   `-A`    | show lines after  |
-|   `-q`    | quiet             |
-|   `-c`    | number of matches |
+|  switch   |       meaning       |
+|-----------|---------------------|
+|   `-R`    | recursive           |
+| `--color` | add color           |
+|   `-n`    | print line          |
+|   `-v`    | reverse             |
+|   `-i`    | ignore case         |
+|   `-B`    | show lines before   |
+|   `-A`    | show lines after    |
+|   `-q`    | quiet               |
+|   `-c`    | count matched lines |
 
 To find lines beggining with `STR`, type:
 
@@ -285,6 +285,13 @@ $ seq 1 1 5 | sed '$d'
 4
 ```
 
+You can also negate the command with `!` sign:
+
+```shell
+$ seq 1 1 5 | sed '$!d'
+5
+```
+
 ### replacing strings
 
 To replace `STR1` with `STR2`, do:
@@ -336,6 +343,15 @@ $ seq 1 2 20 | sed '1~3s/$/#/' | sed '1~2s/^/#/' | sed '5s/#/-/'
 15
 #17
 19#
+```
+
+### number of lines
+
+To get the number of lines, you can, for example, do:
+
+```shell
+$ seq 1 1 5 | sed -n '$='
+5
 ```
 
 ### regex
