@@ -111,6 +111,7 @@ ls -tr
 |   `-B`    | show lines before |
 |   `-A`    | show lines after  |
 |   `-q`    | quiet             |
+|   `-c`    | number of matches |
 
 To find lines beggining with `STR`, type:
 
