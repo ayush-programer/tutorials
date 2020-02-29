@@ -16,6 +16,53 @@ There are various log levels (if not specified, `DEFAULT_MESSAGE_LOGLEVEL` will 
 pr_err("<message>");
 ```
 
+### log level
+
+| lvl |     string     |                     meaning                     |
+|-----|----------------|-------------------------------------------------|
+|  0  | `KERN_EMERG`   | emergency messages (pre-crash)                  |
+|  1  | `KERN_ALERT`   | situation requiring immediate action            |
+|  2  | `KERN_CRIT`    | serious hardware or software failures           |
+|  3  | `KERN_ERR`     | usually hardware issues by drivers              |
+|  4  | `KERN_WARNING` | problematic situation                           |
+|  5  | `KERN_NOTICE`  | normal situation or security related            |
+|  6  | `KERN_INFO`    | informational messages (driver info on startup) |
+|  7  | `KERN_DEBUG`   | debugging messages                              |
+
+Note: You can check the log level by typing:
+
+```shell
+cat /proc/sys/kernel/printk
+```
+
+To get full meaning of the four numbers, use:
+
+```shell
+cat /proc/sys/kernel/printk | awk '{ OFS="|"; print "current loglevel:" OFS $1; print "default loglevel:" OFS $2; print "minimum loglevel:" OFS $3; print "boot-time default loglevel:" OFS $4;  }' | column -t -s'|'
+```
+
+### printk rate limit
+
+Note: You can also limit the number of `printk` messages:
+
+```c
+if (printk_ratelimit())
+	printk(...);
+```
+
+The function is defined as:
+
+```c
+int printk_ratelimit(void);
+```
+
+The rate limit can be customized via the two files in `/proc/sys/kernel`:
+
+|           file           |                        meaning                        |
+|--------------------------|-------------------------------------------------------|
+| `printk_ratelimit`       | number of seconds to wait before re-enabling messages |
+| `printk_ratelimit_burst` | number of messages received before rate-limiting      |
+
 ## current process
 
 Pointer to the `task struct` of the current process is `current`; so mostly anywhere in the kernel code, you can write things such as:
@@ -75,19 +122,32 @@ kmalloc(size_t size, gfp_t flags);
 
 Import the header `linux/slab.h`.
 
-## user space and kernel space exchange
+## user-space and kernel-space
+
+### compiler information
+
+In `C`, you can easily distinguish whether your code is run in kernel-space or user-space context with `__KERNEL__` macro:
+
+```c
+#ifdef __KERNEL__
+	/* code for kernel-space */
+#else
+	/* code for user-space */
+```
+
+### data exchange
 
 Import `linux/uaccess.h`.
 
-To copy from user space to kernel space:
+To copy from user-space to kernel-space:
 
 ```c
 unsigned long copy_from_user (void* to, const void __user* from, unsigned long n);
 ```
 
-Note: The `__user` macro is only there to tell that we are dealing with untrusted pointer (from user space). It only makes sense from the context of kernel development tools like `sparse`.
+Note: The `__user` macro is only there to tell that we are dealing with untrusted pointer (from user-space). It only makes sense from the context of kernel development tools like `sparse`.
 
-To copy from kernel space to user space:
+To copy from kernel-space to user-space:
 
 ```c
 unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
@@ -368,6 +428,13 @@ ls -l /dev | grep -E '^c' | gawk '{ for(i=1; i<=10; i++) { if (i==5) { printf "\
 
 The major number identifies the driver associated with the device (for example, major `4` is for terminal devices). The minor number is for specific device (no rules about this one).
 
+In the kernel module, you can obtain the device number (minor) with one of the following functions (from `linux/kdev_t.h`):
+
+```c
+int print_dev_t(char* buffer, dev_t dev);
+char* format_dev_t(char* buffer, dev_t dev);
+```
+
 #### protocol
 
 First step is to define the `file_operations` struct and corresponding functions. This is minimal recommended:
@@ -386,6 +453,12 @@ static struct file_operations char_fops = {
 	.write		= char_drv_write,
 };
 ```
+
+Note: You can find the full and latest list of `struct file_operations` function pointers [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L1821).
+
+#### file
+
+You can find the latest reference on `struct file` [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L935).
 
 ## syscalls
 
@@ -521,6 +594,10 @@ int main(void) {
 	return 0;
 }
 ```
+
+# Kernel Debugging
+
+
 
 ## gdb
 

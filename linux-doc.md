@@ -616,6 +616,12 @@ git remote -v
 | Redo                |   `CTRL + r`  |
 | Replace (once)      |      `r`      |
 | Replace (mode)      |      `R`      |
+| Copy (yank)         |      `y`      |
+| Cut                 |      `dd`     |
+| Paste after         |      `p`      |
+| Paste before        |      `P`      |
+| Indent              |      `>`      |
+| Unindent            |      `<`      |
 
 Note: The `&` means here "followed by" and not "at the same time" (which is `+`).
 
