@@ -198,7 +198,7 @@ The `PR` variable signifies package revision (initally `r0`). The `PACKAGE_ARCH`
 In this case, instead of `CORE_IMAGES_EXTRA_INSTALL` variable, as in previous example, you can use:
 
 ```shell
-IMAGE_INSTALL = "packagegroup"
+IMAGE_INSTALL += "packagegroup"
 ```
 
 This is the preferred way.
