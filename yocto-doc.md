@@ -25,10 +25,12 @@ This will reposition you in the `poky/build` folder. The most important files he
 After you build the image, you can run it in `qemu` using:
 
 ```shell
-runqemu <machine> [nographic]
+runqemu <machine> <image> [nographic]
 ```
 
 The `<machine>` variable is the one you have set in `build/conf/local.conf` as the `MACHINE` variable. To be sure to be able to run `qemu`, you can use `qemuarm`, `qemuarm64` or `qemux86` for `MACHINE`, to name a few.
+
+To exit, press `CTRL + a` followed by `x`.
 
 ## Recipes
 
