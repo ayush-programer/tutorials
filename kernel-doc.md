@@ -22,7 +22,7 @@ Note: An alternative to `printk` is:
 seq_printf("struct seq_file *sfile, const char *fmt, ...);
 ```
 
-This function will write to a specified file instead of `dmesg`. It is imported from `linux/seq_file.h`. See tutorial on `seq_file` [# The seq file](here).
+This function will write to a specified file instead of `dmesg`. It is imported from `linux/seq_file.h`. See tutorial on `seq_file` [here](#the-seq-file).
 
 ### Log level
 
