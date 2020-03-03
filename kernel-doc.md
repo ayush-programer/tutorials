@@ -1,5 +1,7 @@
 # Linux Kernel Hacking
 
+Note: Just for convenience, link references to kernel source code will be for version `5.0`.
+
 ## printk
 
 To print a message to DMESG, use:
@@ -73,7 +75,7 @@ The rate limit can be customized via the two files in `/proc/sys/kernel`:
 
 ## The seq file
 
-First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32):
+First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32)):
 
 ```c
 void * (*start) (struct seq_file *m, loff_t *pos);
@@ -86,7 +88,7 @@ int (*show) (struct seq_file *m, void *v);
 
 To create an entry in the `/proc` folder, you can use the following function:
 
-```shell
+```c
 struct proc_dir_entry *proc_create(
 	const char *name,
 	umode_t mode,
@@ -94,7 +96,7 @@ struct proc_dir_entry *proc_create(
 	const struct file_operations *proc_fops);
 ```
 
-Note: For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h#L9)):
+Note: For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
 
 ```c
 #define S_IRWXUGO	(S_IRWXU|S_IRWXG|S_IRWXO)
@@ -104,7 +106,7 @@ Note: For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir
 #define S_IXUGO		(S_IXUSR|S_IXGRP|S_IXOTH)
 ```
 
-You can find the rest of the definitions in `linux/uapi/stat.h` [here](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/stat.h#L29). The list is here:
+You can find the rest of the definitions in `linux/uapi/stat.h` on this [link](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/stat.h). The list is here:
 
 ```c
 #define S_IRWXU 00700
@@ -534,11 +536,11 @@ static struct file_operations char_fops = {
 };
 ```
 
-Note: You can find the full and latest list of `struct file_operations` function pointers [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L1821).
+Note: You can find the full list of `struct file_operations` function pointers [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/fs.h#L1783).
 
 #### The file structure
 
-You can find the latest reference on `struct file` [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L935).
+You can find the reference on `struct file` [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/fs.h#L901).
 
 ## syscalls
 
