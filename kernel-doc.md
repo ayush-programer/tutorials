@@ -16,7 +16,15 @@ There are various log levels (if not specified, `DEFAULT_MESSAGE_LOGLEVEL` will 
 pr_err("<message>");
 ```
 
-### log level
+Note: An alternative to `printk` is:
+
+```c
+seq_printf("struct seq_file *sfile, const char *fmt, ...);
+```
+
+This function will write to a specified file instead of `dmesg`. It is imported from `linux/seq_file.h`. See tutorial on `seq_file` [# The seq file](here).
+
+### Log level
 
 | lvl |     string     |                     meaning                     |
 |-----|----------------|-------------------------------------------------|
@@ -41,7 +49,7 @@ To get full meaning of the four numbers, use:
 cat /proc/sys/kernel/printk | awk '{ OFS="|"; print "current loglevel:" OFS $1; print "default loglevel:" OFS $2; print "minimum loglevel:" OFS $3; print "boot-time default loglevel:" OFS $4;  }' | column -t -s'|'
 ```
 
-### printk rate limit
+### Rate limit of printk
 
 Note: You can also limit the number of `printk` messages:
 
@@ -63,7 +71,59 @@ The rate limit can be customized via the two files in `/proc/sys/kernel`:
 | `printk_ratelimit`       | number of seconds to wait before re-enabling messages |
 | `printk_ratelimit_burst` | number of messages received before rate-limiting      |
 
-## current process
+## The seq file
+
+First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32):
+
+```c
+void * (*start) (struct seq_file *m, loff_t *pos);
+void (*stop) (struct seq_file *m, void *v);
+void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+int (*show) (struct seq_file *m, void *v);
+```
+
+## The proc filesystem
+
+To create an entry in the `/proc` folder, you can use the following function:
+
+```shell
+struct proc_dir_entry *proc_create(
+	const char *name,
+	umode_t mode,
+	struct proc_dir_entry *parent,
+	const struct file_operations *proc_fops);
+```
+
+Note: For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h#L9)):
+
+```c
+#define S_IRWXUGO	(S_IRWXU|S_IRWXG|S_IRWXO)
+#define S_IALLUGO	(S_ISUID|S_ISGID|S_ISVTX|S_IRWXUGO)
+#define S_IRUGO		(S_IRUSR|S_IRGRP|S_IROTH)
+#define S_IWUGO		(S_IWUSR|S_IWGRP|S_IWOTH)
+#define S_IXUGO		(S_IXUSR|S_IXGRP|S_IXOTH)
+```
+
+You can find the rest of the definitions in `linux/uapi/stat.h` [here](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/stat.h#L29). The list is here:
+
+```c
+#define S_IRWXU 00700
+#define S_IRUSR 00400
+#define S_IWUSR 00200
+#define S_IXUSR 00100
+
+#define S_IRWXG 00070
+#define S_IRGRP 00040
+#define S_IWGRP 00020
+#define S_IXGRP 00010
+
+#define S_IRWXO 00007
+#define S_IROTH 00004
+#define S_IWOTH 00002
+#define S_IXOTH 00001
+```
+
+## Current process
 
 Pointer to the `task struct` of the current process is `current`; so mostly anywhere in the kernel code, you can write things such as:
 
@@ -73,7 +133,7 @@ printk(KERN_INFO "%s, %d", current->comm, current->pid);
 
 Note: This is imported from `linux/sched.h`.
 
-## container of
+## Container of a variable
 
 Assume you have a structure like this:
 
@@ -96,7 +156,7 @@ struct test_struct *test_ptr;
 test_ptr = container_of(var_k_ptr, struct test_struct, var_k);
 ```
 
-## exporting symbols
+## Exporting symbols
 
 If you want the symbols, i.e. functions, variables, etc. to be available to other parts of kernel or modules, you can use:
 
@@ -122,9 +182,9 @@ kmalloc(size_t size, gfp_t flags);
 
 Import the header `linux/slab.h`.
 
-## user-space and kernel-space
+## User-space and kernel-space
 
-### compiler information
+### Compiler information
 
 In `C`, you can easily distinguish whether your code is run in kernel-space or user-space context with `__KERNEL__` macro:
 
@@ -135,7 +195,7 @@ In `C`, you can easily distinguish whether your code is run in kernel-space or u
 	/* code for user-space */
 ```
 
-### data exchange
+### Data exchange
 
 Import `linux/uaccess.h`.
 
@@ -153,9 +213,9 @@ To copy from kernel-space to user-space:
 unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
 ```
 
-## linked lists
+## Linked lists
 
-### definition
+### Definition
 
 This is a definition of `list_head` from `include/linux/types.h`:
 
@@ -178,7 +238,7 @@ struct node_el {
 
 This is why definition of linked list is "upside down" in the kernel, i.e. why `list_head` is inside `struct node_el`, and not vice versa (this is really more of a graph than a linked list). The rest of linked list code can be found in `include/linux/list.h`.
 
-### intialization
+### Initialization
 
 To declare and initialize the linked list:
 
@@ -195,7 +255,7 @@ LIST_HEAD(my_list);
 
 This will initialize the list at compile time.
 
-### add an element
+### Add an element
 
 To add an element to a linked list, first define a pointer to `struct node_el`:
 
@@ -215,7 +275,7 @@ This is great for implementing stacks. For queues, try:
 list_add_tail(&new_el->list1, &my_list);
 ```
 
-### iterate over list
+### Iterate over list
 
 ```c
 struct list_head *ptr;
@@ -226,7 +286,7 @@ list_for_each(ptr, &my_list) {
 }
 ```
 
-### deinitialize
+### Deinitialize
 
 To delete an element from the list:
 
@@ -236,9 +296,29 @@ list_del(entry);
 
 To delete the whole list, just iterate over the list deleting nodes.
 
-## kernel modules
+## Kernel modules
 
-### hello world module
+### Commands and info
+
+|   comm   |        meaning       |
+|----------|----------------------|
+| `lsmod`  | list kernel modules  |
+| `insmod` | insert kernel module |
+| `rmmod`  | remove kernel module |
+
+To get information on currently loaded modules:
+
+```shell
+cat /proc/modules
+```
+
+List of kernel modules to be loaded at boot-time:
+
+```shell
+cat /etc/modules
+```
+
+### "Hello world" module
 
 Create a project folder with following files:
 
@@ -338,7 +418,7 @@ If instead of `S_IRUGO` there was `0`, this file would not be exposed, i.e. user
 | `charp`     | `ulong`     | `ushort`    |
 | `int`       | `long`      | `intarray`  |
 
-### simple hrtimer example
+### Simple hrtimer example
 
 We will simply expand on the previous example.
 
@@ -416,9 +496,9 @@ Note: This may cause concurrency issues, so avoid using it altogether (but it's 
 
 Check for more useful `hrtimer` functions in `include/linux/hrtimer.h`.
 
-### char driver
+### Char driver
 
-#### major and minor numbers
+#### Major and minor numbers
 
 You can see the list of character devices on your system along with their major and minor device numbers:
 
@@ -435,7 +515,7 @@ int print_dev_t(char* buffer, dev_t dev);
 char* format_dev_t(char* buffer, dev_t dev);
 ```
 
-#### protocol
+#### File operations
 
 First step is to define the `file_operations` struct and corresponding functions. This is minimal recommended:
 
@@ -456,7 +536,7 @@ static struct file_operations char_fops = {
 
 Note: You can find the full and latest list of `struct file_operations` function pointers [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L1821).
 
-#### file
+#### The file structure
 
 You can find the latest reference on `struct file` [here](https://elixir.bootlin.com/linux/latest/source/include/linux/fs.h#L935).
 

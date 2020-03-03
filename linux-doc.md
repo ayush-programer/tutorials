@@ -15,7 +15,7 @@ Another alternative is `gdeb` which will install all the dependencies automatica
 sudo gdebi <deb_file>
 ```
 
-## shell variables
+## Shell variables
 
 | var. |                 meaning                 |
 |------|-----------------------------------------|
@@ -25,7 +25,7 @@ sudo gdebi <deb_file>
 | `$@` | arguments (to iterate over)             |
 | `$#` | number of arguments                     |
 
-## system info
+## System info
 
 Find out if system is 32bit or 64bit:
 
@@ -45,7 +45,7 @@ For general system info, use `uname -a`.
 
 ## xxd
 
-### standard hexdump
+### Standard hexdump
 
 ```shell
 $ echo hello | xxd
@@ -54,14 +54,14 @@ $ echo hello | xxd
 
 Note: You can also specify filename instead: `xxd <filename>`
 
-### raw hex output
+### Raw hex output
 
 ```shell
 $ echo hello | xxd -ps
 68656c6c6f0a
 ```
 
-### hexdump to ASCII
+### Hexdump to ASCII
 
 ```shell
 $ echo hello | xxd | xxd -r
@@ -141,7 +141,7 @@ You can use:
 grep 'STR1\|STR2'
 ```
 
-## gawk
+## awk / gawk
 
 General syntax would be:
 
@@ -149,7 +149,7 @@ General syntax would be:
 gawk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }'
 ```
 
-### variables
+### Variables
 
 | variable |      meaning     |
 |----------|------------------|
@@ -158,7 +158,7 @@ gawk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }'
 |   NF     | number of fields |
 |   NR     | line number      |
 
-### example 1
+### Example 1
 
 Print entries in `/etc/passwd` with line numbers and total line count:
 
@@ -166,7 +166,7 @@ Print entries in `/etc/passwd` with line numbers and total line count:
 $ cat /etc/passwd | gawk 'BEGIN { FS=":"; lines=0 }; { print NR,$1; lines++ }; END { print "Total number of entries: " lines; }'
 ```
 
-### example 2
+### Example 2
 
 List non-hidden folders with users (formatted as `<user> <- <folder>`):
 
@@ -231,7 +231,7 @@ $ seq 1 2 7 | sed -n ''
 
 In this case there is no output.
 
-### printing lines
+### Printing lines
 
 To print the third line from the last example, type:
 
@@ -251,7 +251,7 @@ $ seq 1 1 17 | sed -n '5~3p'
 17
 ```
 
-### removing lines
+### Removing lines
 
 To remove a line, use the `d` command, e.g. remove the third line from the first five natural numbers:
 
@@ -292,7 +292,7 @@ $ seq 1 1 5 | sed '$!d'
 5
 ```
 
-### replacing strings
+### Replacing strings
 
 To replace `STR1` with `STR2`, do:
 
@@ -315,7 +315,7 @@ $ echo "Hello world!" | sed 's/Hello/Bye/g'
 Bye world!
 ```
 
-### prepend and append
+### Prepend and append
 
 To add `<char>` at the beginning of each line, type:
 
@@ -345,7 +345,7 @@ $ seq 1 2 20 | sed '1~3s/$/#/' | sed '1~2s/^/#/' | sed '5s/#/-/'
 19#
 ```
 
-### number of lines
+### Number of lines
 
 To get the number of lines, you can, for example, do:
 
@@ -354,7 +354,7 @@ $ seq 1 1 5 | sed -n '$='
 5
 ```
 
-### regex
+### Regex
 
 It is possible to do regex with `sed`. Try:
 
@@ -369,7 +369,7 @@ $ seq 1 1 5 | sed 's/[23]/-&/'
 
 The `&` represents the matched string.
 
-### newlines
+### Newlines
 
 Assume we have a shell with a lot of commands like:
 
@@ -406,7 +406,7 @@ Also, if you want all matches (not just number of lines), use `gn` instead of `n
 
 ## find
 
-### find executable
+### Find executable
 
 This will find all executable files (excluding searchable folders with `-type f` switch) in the specified folder:
 
@@ -414,7 +414,7 @@ This will find all executable files (excluding searchable folders with `-type f`
 find <folder> [OPTIONS] -executable -type f
 ```
 
-### quit on first match
+### Quit on first match
 
 To stop find on first match (and print it):
 
@@ -422,17 +422,9 @@ To stop find on first match (and print it):
 find <folder> [OPTIONS] -print -quit
 ```
 
-## kernel modules
-
-|   comm   |        meaning       |
-|----------|----------------------|
-| `lsmod`  | list kernel modules  |
-| `insmod` | insert kernel module |
-| `rmmod`  | remove kernel module |
-
 ## ip
 
-### list network namespaces
+### List network namespaces
 
 To list all network namespaces:
 
@@ -442,7 +434,7 @@ ip netns list
 
 The command `ip netns show` is the same.
 
-### list links
+### List links
 
 You can get the list of all links (across all namespaces) by using:
 
@@ -452,7 +444,7 @@ ip link list
 
 This is similar to `ifconfig -a`.
 
-### add netns
+### Add netns
 
 You can add a network namespace via:
 
@@ -460,7 +452,7 @@ You can add a network namespace via:
 ip netns add <netns_name>
 ```
 
-### exec within netns
+### Execute within netns
 
 You can run any shell command within the specified network namespace by using:
 
@@ -476,7 +468,7 @@ ip netns exec <netns_name> ip link list
 
 This will give you a list of links within the specified network namespace.
 
-### move link to a namespace
+### Move link to a namespace
 
 To move a link to a specific namespace, use:
 
@@ -486,7 +478,7 @@ ip link set <link_name> netns <netns_name>
 
 ## nmap
 
-## number conversions
+## Number conversions
 
 You can use Python to convert from hex to decimal, binary, etc., as it can easily be called from the shell:
 
@@ -529,7 +521,7 @@ To convert a number to a string, use:
 '43'
 ```
 
-## filesystem
+## Filesystem
 
 A bit advanced tool to create a file is:
 
@@ -547,7 +539,7 @@ For `<mode>` you can choose:
 
 # Git
 
-## list incoming / outgoing commits
+## List incoming / outgoing commits
 
 After doing a `git fetch`, you might want to see commits that have been loaded from upstream:
 
@@ -569,7 +561,7 @@ git rebase origin/master
 
 This is usually better than `git pull` which will create a merge commit in between.
 
-## rebase onto
+## Rebase onto
 
 To rebase all commits from commit `A` on top of commit `B`, use:
 
@@ -579,7 +571,7 @@ git rebase --onto <new_parent> <old_parent>
 
 Here, `new_parent` is commit `B` and `old_parent` is commit `A`.
 
-## various lists
+## Various lists
 
 To see all branches, do:
 
@@ -593,7 +585,15 @@ To see all remotes, do:
 git remote -v
 ```
 
-## tmux
+## Unstage file
+
+To unstage a file:
+
+```shell
+git reset -- <filename>
+```
+
+# tmux
 
 |        action       |    shortcut   |
 |---------------------|---------------|
@@ -604,7 +604,7 @@ git remote -v
 
 # Vim
 
-## shortcuts
+## Shortcuts
 
 |        action       |    shortcut   |
 |---------------------|---------------|
@@ -642,15 +642,16 @@ git remote -v
 
 Note: The `&` means here "followed by" and not "at the same time" (which is `+`).
 
-## commands
+## Commands
 
 |    command    |     action      |
 |---------------|-----------------|
-| `:o <fname>`  |  open file      |
-|     `:w`      |  save changes   |
-|     `:q`      |  quit           |
+| `:o <fname>`  | open file       |
+|     `:w`      | save changes    |
+|     `:q`      | quit            |
+|`:colorscheme` | set colorscheme |
 
-## misc
+## Miscellaneous
 
 |  symbol  |        meaning       |
 |----------|----------------------|
@@ -658,7 +659,7 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 |   `$`    |  input last line     |
 | `<num>`  |  input line `<num>`  |
 
-## search
+## Search
 
 See:
 
@@ -668,7 +669,7 @@ See:
 :help 'smartcase'
 ```
 
-## shell
+## Shell
 
 To pipe input to a shell command, you can use the selection or visual block, and write something like this:
 
@@ -693,6 +694,8 @@ Similarly, for `xclip`:
 ```
 :r !xclip -o -selection clipboard
 ```
+
+# Makefile
 
 # ARM Assembly
 
