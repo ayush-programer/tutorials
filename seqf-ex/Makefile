@@ -11,3 +11,8 @@ modules_install:
 clean:
 	$(MAKE) -C $(KERNEL_SRC) M=$(shell pwd) clean
 
+start: all
+	sudo insmod $(basename $(obj-m)).ko
+
+stop:
+	sudo rmmod $(basename $(obj-m)).ko

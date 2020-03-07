@@ -2,6 +2,18 @@
 
 Note: Just for convenience, link references to kernel source code will be for version `5.0`.
 
+## Kernel version
+
+To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
+
+To get version information at runtime, use:
+
+```c
+char *kernel_version = utsname()->release;
+```
+
+Note: For the former method include `linux/version.h` and for the latter `linux/utsname.h`.
+
 ## printk
 
 To print a message to DMESG, use:
@@ -73,16 +85,37 @@ The rate limit can be customized via the two files in `/proc/sys/kernel`:
 | `printk_ratelimit`       | number of seconds to wait before re-enabling messages |
 | `printk_ratelimit_burst` | number of messages received before rate-limiting      |
 
+## Configuration
+
+To configure the kernel, run:
+
+```shell
+make menuconfig
+```
+
+Note: It's best to do kernel configuration via the Yocto build system.
+
+### Expose configuration file
+
+To expose the kernel configuration file in `/proc/config.gz`, the following two options in kernel configuration should be considered:
+
+```
+CONFIG_IKCONFIG
+CONFIG_IKCONFIG_PROC
+```
+
 ## The seq file
 
 First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32)):
 
 ```c
-void * (*start) (struct seq_file *m, loff_t *pos);
+void *(*start) (struct seq_file *m, loff_t *pos);
 void (*stop) (struct seq_file *m, void *v);
-void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+void *(*next) (struct seq_file *m, void *v, loff_t *pos);
 int (*show) (struct seq_file *m, void *v);
 ```
+
+Note: See the `seqf-ex` folder for a simple introductory example.
 
 ## The proc filesystem
 
@@ -302,11 +335,13 @@ To delete the whole list, just iterate over the list deleting nodes.
 
 ### Commands and info
 
-|   comm   |        meaning       |
-|----------|----------------------|
-| `lsmod`  | list kernel modules  |
-| `insmod` | insert kernel module |
-| `rmmod`  | remove kernel module |
+|    comm    |        meaning       |
+|------------|----------------------|
+| `lsmod`    | list kernel modules  |
+| `insmod`   | insert kernel module |
+| `rmmod`    | remove kernel module |
+
+Note: The `modprobe` command is the same as `insmod` but it also inserts any kernel modules on which the current one depends. In other words, it might work when `insmod` does not.
 
 To get information on currently loaded modules:
 
