@@ -1,4 +1,4 @@
-obj-m = char-drv.o
+obj-m = char-drv-ll.o
 DEVICE_NUM ?= 4
 
 KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build

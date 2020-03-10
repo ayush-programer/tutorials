@@ -252,7 +252,7 @@ unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
 
 ### Definition
 
-This is a definition of `list_head` from `include/linux/types.h`:
+This is a definition of `list_head` (include it from `linux/types.h`):
 
 ```c
 struct list_head {

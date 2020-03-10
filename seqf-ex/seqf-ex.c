@@ -5,25 +5,19 @@
 
 #define BUFFER_SIZE 2048
 #define BUFFER_STEP 128
+#define BUFFER_CHUNKS BUFFER_SIZE / BUFFER_STEP
 
 static char buffer[BUFFER_SIZE] = { 0 };
 
 static void* seqf_ex_start (struct seq_file* m, loff_t* pos)
 {
-	loff_t check_pos = *pos;
-
-	/* there are some differences in seq_file API with
-	 * regard to kernel version (possibly from 4.15) */
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,20,0)
-	check_pos += BUFFER_STEP;
-#endif
+	loff_t check_pos = *pos * BUFFER_STEP;
 
 	if (check_pos >= BUFFER_SIZE) {
 		return NULL;
 	}
 
-	return buffer + *pos;
+	return buffer + check_pos;
 }
 
 static void seqf_ex_stop (struct seq_file* m, void* v)
@@ -33,13 +27,13 @@ static void seqf_ex_stop (struct seq_file* m, void* v)
 
 static void* seqf_ex_next (struct seq_file* m, void* v, loff_t* pos)
 {
-	*pos += BUFFER_STEP;
+	/* due to compatibility issues between 4.x and 5.x kernel
+	 * versions, it's best to design the seq_file to increase
+	 * the *pos value just by 1 */
 
-	if (*pos >= BUFFER_SIZE) {
-		return NULL;
-	}
+	(*pos)++;
 
-	return buffer + *pos;
+	return seqf_ex_start(m, pos);
 }
 
 static int seqf_ex_show (struct seq_file* m, void* v)

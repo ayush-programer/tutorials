@@ -43,12 +43,22 @@ armv7l
 
 For general system info, use `uname -a`.
 
+## xargs
+
+It is possible to pass `argument` as argument to command `command` using `xargs`:
+
+```shell
+argument | xargs -I{} command {}
+```
+
+The `{}` is a placeholder for the pipe input.
+
 ## xxd
 
 ### Standard hexdump
 
 ```shell
-$ echo hello | xxd
+$ xxd <<< hello
 00000000: 6865 6c6c 6f0a                           hello.
 ```
 
@@ -57,23 +67,25 @@ Note: You can also specify filename instead: `xxd <filename>`
 ### Raw hex output
 
 ```shell
-$ echo hello | xxd -ps
+$ xxd -ps <<< hello
 68656c6c6f0a
 ```
 
 ### Hexdump to ASCII
 
 ```shell
-$ echo hello | xxd | xxd -r
+$ xxd <<< hello | xxd -r
 hello
 ```
+
+Note: This is, sort of, equivalent to `echo hello | xxd | xxd -r`.
 
 ## column
 
 You can arrange text in columns very easy with the `column` tool. Try this for example:
 
 ```shell
-cat /etc/passwd | column -t -s':'
+column -t -s':' /etc/passwd
 ```
 
 ## echo
@@ -141,12 +153,12 @@ You can use:
 grep 'STR1\|STR2'
 ```
 
-## awk / gawk
+## awk
 
 General syntax would be:
 
 ```shell
-gawk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }'
+awk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }' <filename>
 ```
 
 ### Variables
@@ -163,7 +175,7 @@ gawk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }'
 Print entries in `/etc/passwd` with line numbers and total line count:
 
 ```shell
-$ cat /etc/passwd | gawk 'BEGIN { FS=":"; lines=0 }; { print NR,$1; lines++ }; END { print "Total number of entries: " lines; }'
+$ awk 'BEGIN { FS=":"; lines=0 }; { print NR,$1; lines++ }; END { print "Total number of entries: " lines; }' /etc/passwd
 ```
 
 ### Example 2
@@ -394,7 +406,9 @@ The `N` in the command will read another line of input and append it to the curr
 
 ### Vim specific
 
-To input whole file to `sed`, use `:%` as usual.
+To input whole file to `sed`, use `:%` as usual. To input a range, use, for example, `:2,$`. This will input a range from second line to the last one.
+
+#### Number of lines
 
 To get number of lines matching `STR1` in Vim, do:
 
@@ -410,7 +424,7 @@ Also, if you want all matches (not just number of lines), use `gn` instead of `n
 
 This will find all executable files (excluding searchable folders with `-type f` switch) in the specified folder:
 
-```
+```shell
 find <folder> [OPTIONS] -executable -type f
 ```
 
@@ -418,9 +432,25 @@ find <folder> [OPTIONS] -executable -type f
 
 To stop find on first match (and print it):
 
-```
+```shell
 find <folder> [OPTIONS] -print -quit
 ```
+
+### Execute on match
+
+To execute command `<comm>` for each match, use:
+
+```shell
+find <folder> [OPTIONS] -exec <comm> {} \;
+```
+
+For example, to output contents of every shell script file:
+
+```shell
+find . -type f -executable -name "*.sh" -exec cat {} \;
+```
+
+Note: This is not really optimal as it creates subprocess for each match.
 
 ## ip
 
@@ -561,6 +591,16 @@ git rebase origin/master
 
 This is usually better than `git pull` which will create a merge commit in between.
 
+## Make local branch equal to remote
+
+You can do this simply with:
+
+```shell
+git reset --hard origin/master
+```
+
+Note: This, just as examples above, assume that remote you are operating on is `origin` and the branch is `master`.
+
 ## Rebase onto
 
 To rebase all commits from commit `A` on top of commit `B`, use:
@@ -653,11 +693,12 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 
 ## Miscellaneous
 
-|  symbol  |        meaning       |
-|----------|----------------------|
-|   `%`    |  input whole file    |
-|   `$`    |  input last line     |
-| `<num>`  |  input line `<num>`  |
+|  symbol  |              meaning             |
+|----------|----------------------------------|
+|   `%`    |  input whole file                |
+|   `$`    |  input last line                 |
+| `<num>`  |  input line `<num>`              |
+|`:<a>,<b>`|  input range from `<a>` to `<b>` |
 
 ## Search
 

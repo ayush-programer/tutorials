@@ -78,7 +78,7 @@ You can check all these variables out on this [link](https://www.yoctoproject.or
 
 In our example, we will call our first module as `hello-mod`. Depending on the layer you want to use, you should create the `hello-mod` folder inside the `recipes-kernel` directory. There, in `recipes-kernel/hello-mod`, create a file called `hello-mod_0.1.bb` and a folder named `files`.
 
-In `files` folder, put `hello.c` and `Makefile` (you can use the same from [hello world module](#hello-world-module)). You will also need a licence file which you can obtain from https://www.gnu.org/licenses/. Call it `COPYING` and get its checksum by using:
+In `files` folder, put `hello.c` and `Makefile` (you can use the same from [hello world module](#hello-world-module)). You will also need a licence file which you can obtain from [GNU licenses](https://www.gnu.org/licenses/). Call it, for example, `COPYING` and get its checksum by using:
 
 ```shell
 $ md5sum COPYING
@@ -100,6 +100,13 @@ SRC_URI += "file://COPYING"
 S = "${WORKDIR}"
 
 RPROVIDES_${PN} += "kernel-module-hello-mod"
+```
+
+Note: Another way to provide a license is to use just:
+
+```shell
+LICENSE = "MIT"
+  file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 ```
 
 Then, in bitbake shell, you can see if everything went OK:
@@ -147,6 +154,10 @@ bitbake-layers add-layer <layer_name>
 
 Or, even better, edit the `build/conf/bblayers.conf` to include your layer.
 
+### Add new BSP layer
+
+Instead of adding everything manually, from firmware to other packages required to boot the device, it's better to find existing layers on [OpenEmbedded Layer Index](https://layers.openembedded.org).
+
 ## Images
 
 Images are exactly what the name says. Recipes that define how an image ready to be installed on the system will look like, i.e. what it will contain. In `poky` there are two basic images you can include in your own image:
@@ -187,7 +198,7 @@ LICENSE = "MIT"
 
 PR = "r0"
 
-PACKAGE_ARCH = "any"
+PACKAGE_ARCH = "all"
 
 inherit packagegroup
 
@@ -227,4 +238,32 @@ The same `.cfg` file can be obtained from Linux kernel repository by typing the 
 scripts/diffconfig -m <oldconf> <newconf> > fragment.cfg
 ```
 
+## Add command to `sysctl`
 
+You can add new commands to `sysctl` for kernel fine-tuning. In the kernel repo, open the `kernel/sysctl.c` file. There, you will see a list of `sysctl` options, so copying one of them and appending it is the way to go. For example, add this to the end of `kern_table[]` in `sysctl.c`:
+
+```c
+{
+	.procname	= "example_control",
+	.data		= &example_control,
+	.maxlen		= sizeof(int),
+	.mode		= 0644,
+	.proc_handler	= proc_dointvec_minmax,
+	.extra1		= &zero,
+	.extra2		= &one,
+}
+```
+
+Then, declare `example_control` variable in `include/linux/sysctl.h` as `extern`:
+
+```c
+extern int example_control;
+```
+
+Finally, in the file you are going to use this variable, declare and initialize:
+
+```c
+int __read_mostly example_control = 0;
+```
+
+Note: The `__read_mostly` keyword only tells the compiler it will rarely be written (and more often read).

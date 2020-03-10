@@ -1,5 +1,4 @@
-obj-m = char-drv.o
-DEVICE_NUM ?= 4
+obj-m = hrtimer.o
 
 KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 
@@ -13,7 +12,7 @@ clean:
 	$(MAKE) -C $(KERNEL_SRC) M=$(shell pwd) clean
 
 start: all
-	sudo ./scripts/start-drv.sh $(DEVICE_NUM) $(shell id -un):$(shell id -gn)
+	sudo insmod $(basename $(obj-m)).ko
 
 stop:
-	sudo ./scripts/close-drv.sh
+	sudo rmmod $(basename $(obj-m)).ko

@@ -1,15 +1,6 @@
 # Simple `seq_file` example
 
-This is a simpe `seq_file` example that will expose its functionality via `/proc/seqf-ex` file.
-
-|   command    |    action     |
-|--------------|---------------|
-| `make`       | build         |
-| `make start` | start module  |
-| `make stop`  | stop module   |
-| `make clean` | clean         |
-
-Once the module has started, to see the output, type:
+This is a simpe `seq_file` example that will expose its functionality via `/proc/seqf-ex` file. Once the module has started, to see the output, type:
 
 ```shell
 cat /proc/seqf-ex
