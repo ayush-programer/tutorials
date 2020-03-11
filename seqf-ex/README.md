@@ -9,5 +9,5 @@ cat /proc/seqf-ex
 You can check if the buffer of size 2048 is being printed with steps of 128 bytes (amounting to 16 lines):
 
 ```shell
-cat /proc/seqf-ex | awk 'BEGIN { line=0 } { line++; print "Line" OFS line OFS "length:" OFS length($0) } END { print "Line count:" OFS line }'
+awk 'BEGIN { line=0 } { line++; print "Line" OFS line OFS "length:" OFS length($0) } END { print "Line count:" OFS line }' /proc/seqf-ex
 ```
