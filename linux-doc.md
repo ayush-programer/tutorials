@@ -53,6 +53,10 @@ argument | xargs -I{} command {}
 
 The `{}` is a placeholder for the pipe input.
 
+## Jobs
+
+To see all jobs, type `jobs`. To put a job to foreground, use `fg <job_num>`. Similarly, to put a job to background, type `bg <job_num>`. You can put the current process to background with `CTRL + z` combination.
+
 ## xxd
 
 ### Standard hexdump

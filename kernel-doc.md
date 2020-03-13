@@ -326,10 +326,20 @@ list_for_each(ptr, &my_list) {
 To delete an element from the list:
 
 ```c
-list_del(entry);
+list_del(ptr);
 ```
 
-To delete the whole list, just iterate over the list deleting nodes.
+To delete the whole list, just iterate over the list deleting nodes (use the safe variant, though):
+
+```c
+struct list_head *ptr;
+struct list_head *tmp
+struct node_el *entry;
+
+list_for_each_safe(ptr, tmp, &my_list) {
+	list_del(ptr);
+}
+```
 
 ## Kernel modules
 
