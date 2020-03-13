@@ -5,6 +5,11 @@ error_and_exit() {
 	exit $2
 }
 
+if [ -z "$COMM" ]
+then
+	COMM=insmod
+fi
+
 if [ $(id -u) -ne 0 ]
 then
 	error_and_exit "Please run script as root." 1
@@ -37,27 +42,39 @@ then
 	error_and_exit "Invalid argument: $2. Please use user:group format." 6
 fi
 
-insmod char-drv.ko device_num=$1
+if [ -z "$3" ]
+then
+	error_and_exit "Please pass module name as third argument." 7
+fi
+
+MODULE_REGEX='\w\.ko$'
+if ! [[ "$3" =~ $MODULE_REGEX ]]
+then
+	error_and_exit "The module name should end with .ko extension." 8
+fi
+
+$COMM "$3" device_num=$1
 
 if [ $? -ne 0 ]
 then
-	error_and_exit "Could not start char-drv." 7
+	error_and_exit "Could not start $3 module." 9
 fi
 
-MAJOR=`cat /proc/devices | awk '{ if($2=="char-drv") { print $1; exit 0 }; }'`
+MAJOR=`awk -v dev_pref=${3%*.ko} '{ if($2==dev_pref) { print $1; exit 0 }; }' /proc/devices`
 
 if [ -z "$MAJOR" ]
 then
-	rmmod char-drv.ko
-	error_and_exit "Could not extract major number from /proc/devices." 8
+	rmmod "$3"
+	error_and_exit "Could not extract major number from /proc/devices." 10
 fi
 
 seq 1 1 $1 | awk \
 	-v major=$MAJOR \
 	-v usrgrp=$2 \
+	-v dev_pref=${3%*.ko} \
 '{
 	minor=$1 - 1
-	dev_name="/dev/char-drv-" minor
+	dev_name="/dev/" dev_pref "-" minor
 	system("rm -rf" OFS dev_name)
 	system("mknod" OFS dev_name OFS "c" OFS major OFS minor)
 	system("chown" OFS usrgrp OFS dev_name)
@@ -65,7 +82,7 @@ seq 1 1 $1 | awk \
 
 echo -ne "(i) Created devices:\n"
 
-ls /dev | grep "char-drv" | awk '{
+ls /dev | grep "${3%*.ko}" | awk '{
 	file="\t/dev/" $1
 	system("stat -c \"%A %U:%G %n\"" OFS file)
 }'

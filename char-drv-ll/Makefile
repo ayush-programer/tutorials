@@ -13,7 +13,7 @@ clean:
 	$(MAKE) -C $(KERNEL_SRC) M=$(shell pwd) clean
 
 start: all
-	sudo ./scripts/start-drv.sh $(DEVICE_NUM) $(shell id -un):$(shell id -gn)
+	sudo ../scripts/start-drv.sh $(DEVICE_NUM) $(shell id -un):$(shell id -gn) $(basename $(obj-m)).ko
 
 stop:
-	sudo ./scripts/close-drv.sh
+	sudo ../scripts/close-drv.sh $(basename $(obj-m)).ko
