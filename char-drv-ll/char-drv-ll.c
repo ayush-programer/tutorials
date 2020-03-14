@@ -30,21 +30,21 @@ static int char_drv_open(struct inode *inode, struct file *filp)
 	struct char_dev* char_drv_dev;
 
 	char_drv_dev = container_of(inode->i_cdev, struct char_dev, cdev);
+
+	down_interruptible(&char_drv_dev->sem);
 	filp->private_data = (void*)char_drv_dev;
+	up(&char_drv_dev->sem);
 
 	return 0;
 }
 
 static int char_drv_release(struct inode* inode, struct file* filp)
 {
-	struct char_dev* char_drv_dev = (struct char_dev*)filp->private_data;
-
-	pr_err("char-drv-ll: Current size is: %ld\n", char_drv_dev->size);
-
 	return 0;
 }
 
-static ssize_t char_drv_read(struct file* filp, char* buff, size_t size, loff_t* loff)
+static ssize_t char_drv_read(struct file* filp, char* buff,
+			     size_t size, loff_t* loff)
 {
 	int list_item;
 	int loff_remainder;
@@ -57,50 +57,66 @@ static ssize_t char_drv_read(struct file* filp, char* buff, size_t size, loff_t*
 
 	char_drv_dev = (struct char_dev*)filp->private_data;
 
+	down_interruptible(&char_drv_dev->sem);
+
+	size_to_be_read = 0;
+
 	if (char_drv_dev->size < *loff) {
 		pr_err("char-drv-ll: Invalid offset: %ld\n", (long)*loff);
-
-		return -ENXIO;
+		size_to_be_read = -ENXIO;
+		goto end_read;
 	}
 	else if (char_drv_dev->size == *loff) {
-		return 0;
+		goto end_read;
 	}
 
-	partial_size = char_drv_dev->size - (char_drv_dev->size % MAX_PER_NODE);
-	list_item = (long)*loff / MAX_PER_NODE;
-	loff_remainder = (long)*loff % MAX_PER_NODE;
+	partial_size = (int)(char_drv_dev->size -
+		       (char_drv_dev->size % MAX_PER_NODE));
+	list_item = (int)((long)*loff / MAX_PER_NODE);
+	loff_remainder = (int)((long)*loff % MAX_PER_NODE);
 
-	if (!list_empty(&char_drv_dev->mem_chunk_list)) {
+	list_for_each(ptr, &char_drv_dev->mem_chunk_list) {
+		entry = list_entry(ptr, struct mem_chunk, lhead);
 
-		list_for_each(ptr, &char_drv_dev->mem_chunk_list) {
-			entry = list_entry(ptr, struct mem_chunk, lhead);
-
-			if (list_item == 0) {
-				entry = list_entry(ptr, struct mem_chunk, lhead);
-				remaining_bytes = (partial_size > *loff) ? MAX_PER_NODE : char_drv_dev->size - *loff;
-
-				if (remaining_bytes > 0) {
-					size_to_be_read = remaining_bytes < size ? remaining_bytes : size;
-
-					if (copy_to_user(buff, &(entry->data[loff_remainder]), size_to_be_read))
-						return -ENOMEM;
-
-					*loff += size_to_be_read;
-
-					return size_to_be_read;
-				}
-			}
-
-			list_item--;
+		if (list_item-- != 0) {
+			continue;
 		}
+
+		entry = list_entry(ptr, struct mem_chunk, lhead);
+		remaining_bytes = partial_size > *loff
+				? MAX_PER_NODE
+				: char_drv_dev->size - *loff;
+
+		if (remaining_bytes <= 0) {
+			size_to_be_read = 0;
+			goto end_read;
+		}
+
+		size_to_be_read = remaining_bytes < size
+				? remaining_bytes
+				: size;
+
+		if (copy_to_user(buff, &(entry->data[loff_remainder]),
+				 size_to_be_read)) {
+			size_to_be_read = -ENOMEM;
+			goto end_read;
+		}
+
+		*loff += size_to_be_read;
+
+		goto end_read;
 	}
 
-	return 0;
+end_read:
+	up(&char_drv_dev->sem);
+
+	return size_to_be_read;
 }
 
-static ssize_t char_drv_write(struct file* filp, const char* buff, size_t size, loff_t* loff)
+static ssize_t char_drv_write(struct file* filp, const char* buff,
+			      size_t size, loff_t* loff)
 {
-	long size_to_be_written;
+	int size_to_be_written;
 	struct char_dev* char_drv_dev;
 	struct list_head* ptr;
 	struct mem_chunk* entry;
@@ -112,42 +128,49 @@ static ssize_t char_drv_write(struct file* filp, const char* buff, size_t size, 
 
  	char_drv_dev = (struct char_dev*)filp->private_data;
 
+	down_interruptible(&char_drv_dev->sem);
+
 	if (char_drv_dev->size < *loff) {
 		pr_err("char-drv-ll: Invalid offset: %ld\n", (long)*loff);
-
-		return -ENXIO;
+		size_to_be_written = -ENXIO;
+		goto end_write;
 	}
 
-	list_item = (long)*loff / MAX_PER_NODE;
-	loff_remainder = (long)*loff % MAX_PER_NODE;
+	list_item = (int)((long)*loff / MAX_PER_NODE);
+	loff_remainder = (int)((long)*loff % MAX_PER_NODE);
 
-	if (!list_empty(&char_drv_dev->mem_chunk_list)) {
+	list_for_each(ptr, &char_drv_dev->mem_chunk_list) {
 
-		list_for_each(ptr, &char_drv_dev->mem_chunk_list) {
-
-			if (list_item == 0) {
-				entry = list_entry(ptr, struct mem_chunk, lhead);
-				remaining_bytes = MAX_PER_NODE - loff_remainder;
-
-				if (remaining_bytes > 0) {
-					size_to_be_written = remaining_bytes < size ? remaining_bytes : size;
-
-					if (copy_from_user(&(entry->data[loff_remainder]), buff, size_to_be_written))
-						return -ENOMEM;
-
-					new_size = (long)*loff + size;
-
-					if (new_size > char_drv_dev->size)
-						char_drv_dev->size = new_size;
-
-					*loff += size_to_be_written;
-
-					return size_to_be_written;
-				}
-			}
-
-			list_item--;
+		if (list_item-- != 0) {
+			continue;
 		}
+
+		entry = list_entry(ptr, struct mem_chunk, lhead);
+		remaining_bytes = MAX_PER_NODE - loff_remainder;
+
+		if (remaining_bytes <= 0) {
+			break;
+		}
+
+		size_to_be_written = remaining_bytes < size
+				   ? remaining_bytes
+				   : size;
+
+		if (copy_from_user(&(entry->data[loff_remainder]), buff,
+				     size_to_be_written)) {
+			size_to_be_written = -ENOMEM;
+			goto end_write;
+		}
+
+		new_size = (long)*loff + size;
+
+		if (new_size > char_drv_dev->size) {
+			char_drv_dev->size = new_size;
+		}
+
+		*loff += size_to_be_written;
+
+		goto end_write;
 	}
 
 	new_el = kmalloc(sizeof(*new_el), GFP_KERNEL);
@@ -156,12 +179,18 @@ static ssize_t char_drv_write(struct file* filp, const char* buff, size_t size, 
 
 	*loff += size_to_be_written;
 
-	if (copy_from_user(new_el->data, buff, size_to_be_written))
-		return -ENOMEM;
+	if (copy_from_user(new_el->data, buff, size_to_be_written)) {
+		size_to_be_written = -ENOMEM;
+		goto end_write;
+	}
 
 	list_add_tail(&new_el->lhead, &char_drv_dev->mem_chunk_list);
 
 	char_drv_dev->size += size_to_be_written;
+
+end_write:
+
+	up(&char_drv_dev->sem);
 
 	return size_to_be_written;
 }
@@ -194,6 +223,7 @@ static void setup_char_drv(struct cdev *cdev, int minor)
 	char_drv_dev = container_of(cdev, struct char_dev, cdev);
 	INIT_LIST_HEAD(&char_drv_dev->mem_chunk_list);
 	char_drv_dev->size = 0;
+	sema_init(&char_drv_dev->sem, 1);
 
 	return;
 }
@@ -205,11 +235,13 @@ static int __init char_drv_start(void)
 	int i;
 
 	if (device_num <= 0) {
-		pr_err("char-drv-ll: Parameter device_num has to be larger than zero.\n");
+		pr_err("char-drv-ll: Parameter device_num "
+			"has to be larger than zero.\n");
 		return -1;
 	}
 
-	char_devices = kmalloc(sizeof(*char_devices) * device_num, GFP_KERNEL | GFP_NOWAIT);
+	char_devices = kmalloc(sizeof(*char_devices) * device_num,
+			       GFP_KERNEL | GFP_NOWAIT);
 
 	if (simple_major) {
 		dev = MKDEV(simple_major, 0);
@@ -241,18 +273,20 @@ static void __exit char_drv_end(void)
 	struct char_dev* char_drv_dev;
 
 	for (i = 0; i < device_num; i++) {
-		char_drv_dev = container_of(&char_devices[i].cdev, struct char_dev, cdev);
+		char_drv_dev = container_of(&char_devices[i].cdev,
+				struct char_dev, cdev);
 
-		if (!list_empty(&char_drv_dev->mem_chunk_list)) {
+		down_interruptible(&char_drv_dev->sem);
 
-			list_for_each_safe(ptr, tmp, &char_drv_dev->mem_chunk_list) {
-				entry = list_entry(ptr, struct mem_chunk, lhead);
-				kfree(entry->data);
-				list_del(ptr);
-			}
+		list_for_each_safe(ptr, tmp, &char_drv_dev->mem_chunk_list) {
+			entry = list_entry(ptr, struct mem_chunk, lhead);
+			kfree(entry->data);
+			list_del(ptr);
 		}
 
 		cdev_del(&char_devices[i].cdev);
+
+		up(&char_drv_dev->sem);
 	}
 
 	kfree(char_devices);
