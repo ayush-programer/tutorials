@@ -15,13 +15,13 @@ then
 	error_and_exit "Please run script as root." 1
 fi
 
-if [ -z "$1" ]
+if [ -z $1 ]
 then
 	error_and_exit "Please specify number of devices." 2
 fi
 
-NUM_REGEX='^[0-9]+$'
-if ! [[ "$1" =~ $NUM_REGEX ]]
+echo $1 | grep '^[0-9]\+$' > /dev/null
+if [ $? -ne 0 ]
 then
 	error_and_exit "Please use a numeric value." 3
 fi
@@ -31,40 +31,47 @@ then
 	error_and_exit "Number of devices has to be at least one." 4
 fi
 
-if [ -z "$2" ]
+if [ -z $2 ]
 then
 	error_and_exit "Please pass user:group as second argument." 5
 fi
 
-USRGRP_REGEX='^\w+:\w+$'
-if ! [[ "$2" =~ $USRGRP_REGEX ]]
+echo $2 | grep '^\w\+:\w\+$' > /dev/null
+if [ $? -ne 0 ]
 then
 	error_and_exit "Invalid argument: $2. Please use user:group format." 6
 fi
 
-if [ -z "$3" ]
+if [ -z $3 ]
 then
 	error_and_exit "Please pass module name as third argument." 7
 fi
 
-MODULE_REGEX='\w\.ko$'
-if ! [[ "$3" =~ $MODULE_REGEX ]]
+echo $3
+
+echo $3 | grep '^.*\.ko$' > /dev/null
+if [ $? -ne 0 ]
 then
 	error_and_exit "The module name should end with .ko extension." 8
 fi
 
-$COMM "$3" device_num=$1
+$COMM $3 device_num=$1
 
 if [ $? -ne 0 ]
 then
 	error_and_exit "Could not start $3 module." 9
 fi
 
-MAJOR=`awk -v dev_pref=${3%*.ko} '{ if($2==dev_pref) { print $1; exit 0 }; }' /proc/devices`
+MAJOR=`awk -v dev_pref=${3%*.ko} '{
+	if($2==dev_pref) {
+		print $1
+		exit 0
+	}
+}' /proc/devices`
 
 if [ -z "$MAJOR" ]
 then
-	rmmod "$3"
+	rmmod $3
 	error_and_exit "Could not extract major number from /proc/devices." 10
 fi
 

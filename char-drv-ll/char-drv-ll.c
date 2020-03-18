@@ -195,12 +195,32 @@ end_write:
 	return size_to_be_written;
 }
 
+static loff_t char_drv_llseek (struct file *filp, loff_t loff, int whence)
+{
+	struct char_dev* char_drv_dev;
+
+	char_drv_dev = (struct char_dev*)filp->private_data;
+
+	switch (whence) {
+		case SEEK_SET:
+			return loff;
+		case SEEK_CUR:
+			return filp->f_pos + loff;
+		case SEEK_END:
+			return char_drv_dev->size + loff;
+
+	}
+
+	return -EINVAL;
+}
+
 static struct file_operations char_fops = {
 	.owner		= THIS_MODULE,
 	.open		= char_drv_open,
 	.release	= char_drv_release,
 	.read		= char_drv_read,
 	.write		= char_drv_write,
+	.llseek		= char_drv_llseek
 };
 
 static void setup_char_drv(struct cdev *cdev, int minor)

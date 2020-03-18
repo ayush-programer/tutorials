@@ -583,6 +583,8 @@ static struct file_operations char_fops = {
 
 Note: You can find the full list of `struct file_operations` function pointers [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/fs.h#L1783).
 
+Note: For `llseek` implementation, check out macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/uapi/linux/fs.h#L40).
+
 #### The file structure
 
 You can find the reference on `struct file` [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/fs.h#L901).

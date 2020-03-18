@@ -53,6 +53,10 @@ argument | xargs -I{} command {}
 
 The `{}` is a placeholder for the pipe input.
 
+## Error codes
+
+Linux error codes can be found in `errno-base.h` and `errno.h` located in `/usr/include/asm-generic/` folder.
+
 ## Jobs
 
 To see all jobs, type `jobs`. To put a job to foreground, use `fg <job_num>`. Similarly, to put a job to background, type `bg <job_num>`. You can put the current process to background with `CTRL + z` combination.
@@ -407,6 +411,23 @@ sed -E ':begin;$!N;s/echo -ne "\(\!\) (.*)\\n"\nexit ([0-9]+)/error_and_exit "\1
 ```
 
 The `N` in the command will read another line of input and append it to the current line separated by newline (i.e. `\n`). This, however, means that the `sed` will only process every second line. To make it process each line, we add `P` (print) and `D` (delete) at the end. The `-E` switch is for extended regex.
+
+### Example
+
+Assume we have a list of songs:
+
+```
+01 - song1.mp3
+02- song2.mp3
+```
+
+The whitespaces can be present, but not necessarily. We want to extract track number, song name and format. We could do this with:
+
+```shell
+sed -n -e 's/^\([0-9]\+\) \?- \?\(\w\+\)\.\(\(\w\|[0-9]\)\+\)$/track: \1, name: \2, format: \3/p'
+```
+
+Note: In regular `sed`, it is not possible to do grouping without capturing (as is possible with some other regex conventions by using `(?:<pattern>)` syntax.
 
 ### Vim specific
 
