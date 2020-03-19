@@ -2,6 +2,10 @@
 
 Note: Just for convenience, link references to kernel source code will be for version `5.0`.
 
+## Preemption info
+
+Short summary of low latency and RT can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
+
 ## Kernel version
 
 To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
@@ -102,6 +106,32 @@ To expose the kernel configuration file in `/proc/config.gz`, the following two 
 ```
 CONFIG_IKCONFIG
 CONFIG_IKCONFIG_PROC
+```
+
+## Processes
+
+You can iterate over process list:
+
+```c
+struct task_struct *g, *p;
+
+read_lock(&tasklist_lock);
+for_each_process_thread(g, p) {
+	/* operate on p */
+}
+read_unlock(&tasklist_lock);
+```
+
+You can find definition of `task_struct` in `linux/sched.h`, specifically [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/sched.h#L592).
+
+## CPUs
+
+Similarly, you can iterate over CPUs with one of macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/cpumask.h#L777):
+
+```c
+#define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
+#define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
+#define for_each_present_cpu(cpu)  for_each_cpu((cpu), cpu_present_mask)
 ```
 
 ## The seq file
