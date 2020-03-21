@@ -133,33 +133,9 @@ Similarly, you can iterate over CPUs with one of macros defined [here](https://e
 #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
 #define for_each_present_cpu(cpu)  for_each_cpu((cpu), cpu_present_mask)
 ```
+## umode type 
 
-## The seq file
-
-First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32)):
-
-```c
-void *(*start) (struct seq_file *m, loff_t *pos);
-void (*stop) (struct seq_file *m, void *v);
-void *(*next) (struct seq_file *m, void *v, loff_t *pos);
-int (*show) (struct seq_file *m, void *v);
-```
-
-Note: See the `seqf-ex` folder for a simple introductory example.
-
-## The proc filesystem
-
-To create an entry in the `/proc` folder, you can use the following function:
-
-```c
-struct proc_dir_entry *proc_create(
-	const char *name,
-	umode_t mode,
-	struct proc_dir_entry *parent,
-	const struct file_operations *proc_fops);
-```
-
-Note: For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
+For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
 
 ```c
 #define S_IRWXUGO	(S_IRWXU|S_IRWXG|S_IRWXO)
@@ -187,6 +163,158 @@ You can find the rest of the definitions in `linux/uapi/stat.h` on this [link](h
 #define S_IWOTH 00002
 #define S_IXOTH 00001
 ```
+
+These values correspond to user, group and other privilege levels (read/write/execute).
+
+## seq file
+
+First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32)):
+
+```c
+void *(*start) (struct seq_file *m, loff_t *pos);
+void (*stop) (struct seq_file *m, void *v);
+void *(*next) (struct seq_file *m, void *v, loff_t *pos);
+int (*show) (struct seq_file *m, void *v);
+```
+
+The handlers should be loaded in `struct seq_operations` which will be used to create a wrapper for `open`:
+
+```c
+static int seqf_ex_proc_open(struct inode* inode, struct file* file)
+{
+	return seq_open(file, &seqf_ex_ops);
+}
+```
+
+All that is left is to create a `struct file_operations` that you can use:
+
+```c
+static struct file_operations seqf_ex_proc_ops = {
+	.owner		= THIS_MODULE,
+	.open		= seqf_ex_proc_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= seq_release
+};
+```
+
+Note: The functions `seq_read`, `seq_lseek` and `seq_release` are defined in the kernel itself (no need to write them yourself).
+
+See the `seqf-ex` folder for a simple introductory example.
+
+## procfs
+
+The proc filesystem is exposed via the `/proc` folder. Using debug filesystem is a better alternative in modern kernel programming.
+
+Note: To use in kernel development, include `linux/proc_fs.h`.
+
+### Create file
+
+To create a file in the procfs, you can use the following function:
+
+```c
+struct proc_dir_entry *proc_create(const char *name, umode_t mode,
+				   struct proc_dir_entry *parent,
+				   const struct file_operations *proc_fops);
+```
+
+### Create folder
+
+To create a subfolder in the proc filesystem, use:
+
+```
+struct proc_dir_entry* proc_mkdir(const char *name,
+				  struct proc_dir_entry *parent)
+```
+
+### Remove entry
+
+To remove the file, or folder, use:
+
+```c
+void remove_proc_entry(const char *name, struct proc_dir_entry *parent);
+```
+
+Note: Example usage of proc filesystem can be found in the `seqfs-ex` example.
+
+## debugfs
+
+The debug filesystem is usually mounted to `/sys/kernel/debug`. You can mount it manually, if necessary:
+
+```shell
+mount -t debugfs none /sys/kernel/debug/
+```
+
+Note: For use in kernel include `linux/debugfs.h` header file.
+
+### Create file
+
+To create a file in the debugfs, use:
+
+```c
+struct dentry *debugfs_create_file(const char *name, umode_t mode,
+				   struct dentry *parent, void *data,
+				   const struct file_operations *fops);
+```
+
+### Create folder
+
+To create a subfolder in the debug filesystem, use:
+
+```c
+struct dentry *debugfs_create_dir(const char *name,
+				  struct dentry *parent);
+```
+
+### Remove entry
+
+To remove an entry, use:
+
+```
+void debugfs_remove(struct dentry *dentry);
+```
+
+Note: Example usage of debugfs can be found in `relay-ex` example.
+
+## Relay channel
+
+You can find out more about the relay channel [here](http://relayfs.sourceforge.net/relayfs.txt). Also, include `linux/relay.h` header file.
+
+These are the two most important handlers:
+
+```c
+struct dentry* create(const char* filename, struct dentry* parent,
+		      umode_t mode, struct rchan_buf* buf,
+		      int* is_global);
+int delete(struct dentry *dentry);
+```
+
+Load them into the `struct rchan_callback`; definition can be found [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/relay.h#L80).
+
+These callbacks can then be loaded in:
+
+```c
+struct rchan *relay_open(const char *base_filename,
+			 struct dentry *parent,
+			 size_t subbuf_size,
+			 size_t n_subbufs,
+			 struct rchan_callbacks *cb,
+			 void *private_data);
+```
+
+To write data to a relay channel, use:
+
+```c
+void relay_write(struct rchan *chan, const void *data, size_t length);
+```
+
+Closing the relay channel is simple:
+
+```c
+relay_close(struct rchan* rchan);
+```
+
+Note: See the `relay-ex` for a simple relay channel example.
 
 ## Current process
 
