@@ -57,12 +57,15 @@ fi
 
 $COMM $3 device_num=$1
 
+MODULE_NAME=`basename $3`
+MODULE_NAME="${MODULE_NAME%*.ko}"
+
 if [ $? -ne 0 ]
 then
 	error_and_exit "Could not start $3 module." 9
 fi
 
-MAJOR=`awk -v dev_pref=${3%*.ko} '{
+MAJOR=`awk -v dev_pref=$MODULE_NAME '{
 	if($2==dev_pref) {
 		print $1
 		exit 0
@@ -78,7 +81,7 @@ fi
 seq 1 1 $1 | awk \
 	-v major=$MAJOR \
 	-v usrgrp=$2 \
-	-v dev_pref=${3%*.ko} \
+	-v dev_pref=$MODULE_NAME \
 '{
 	minor=$1 - 1
 	dev_name="/dev/" dev_pref "-" minor
@@ -89,7 +92,7 @@ seq 1 1 $1 | awk \
 
 echo -ne "(i) Created devices:\n"
 
-ls /dev | grep "${3%*.ko}" | awk '{
+ls /dev | grep "$MODULE_NAME" | awk '{
 	file="\t/dev/" $1
 	system("stat -c \"%A %U:%G %n\"" OFS file)
 }'

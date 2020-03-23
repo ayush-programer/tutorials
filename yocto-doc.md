@@ -32,6 +32,17 @@ The `<machine>` variable is the one you have set in `build/conf/local.conf` as t
 
 To exit, press `CTRL + a` followed by `x`.
 
+## Use `systemd`
+
+To use `systemd` instead of `systemV`, just add these lines to `build/conf/local.conf`:
+
+```shell
+DISTRO_FEATURES_append += "systemd"
+VIRTUAL-RUNTIME_init_manager = "systemd"
+DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
+VIRTUAL-RUNTIME_initscripts = ""
+```
+
 ## Recipes
 
 Recipe is any file with the `.bb` extension. You can build any recipe with:
@@ -238,32 +249,3 @@ The same `.cfg` file can be obtained from Linux kernel repository by typing the 
 scripts/diffconfig -m <oldconf> <newconf> > fragment.cfg
 ```
 
-## Add command to `sysctl`
-
-You can add new commands to `sysctl` for kernel fine-tuning. In the kernel repo, open the `kernel/sysctl.c` file. There, you will see a list of `sysctl` options, so copying one of them and appending it is the way to go. For example, add this to the end of `kern_table[]` in `sysctl.c`:
-
-```c
-{
-	.procname	= "example_control",
-	.data		= &example_control,
-	.maxlen		= sizeof(int),
-	.mode		= 0644,
-	.proc_handler	= proc_dointvec_minmax,
-	.extra1		= &zero,
-	.extra2		= &one,
-}
-```
-
-Then, declare `example_control` variable in `include/linux/sysctl.h` as `extern`:
-
-```c
-extern int example_control;
-```
-
-Finally, in the file you are going to use this variable, declare and initialize:
-
-```c
-int __read_mostly example_control = 0;
-```
-
-Note: The `__read_mostly` keyword only tells the compiler it will rarely be written (and more often read).

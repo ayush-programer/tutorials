@@ -6,8 +6,6 @@
 #include <linux/uaccess.h>
 #include <linux/types.h>
 
-#include "test.h"
-
 #define MAX_PER_NODE 16
 
 static int simple_major = 0;
