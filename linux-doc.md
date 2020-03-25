@@ -178,6 +178,29 @@ awk 'BEGIN { <code_on_begin> }; { <code_per_line> }; END { <code_on_end> }' <fil
 |   NF     | number of fields |
 |   NR     | line number      |
 
+Note, you can pass variables from shell by using the `-v` switch:
+
+```shell
+TEST_VAR=Hello
+echo "world" | awk -v test=$TEST_VAR '{ print test " " $0 }'
+```
+
+### Functions
+
+You can define a function alongside the three main blocks:
+
+```shell
+awk 'BEGIN { ... }; function test(var){ ... }; { ... }; END { ... };' <filename>
+```
+
+### Regex
+
+You can test if a variable conforms to a regex by using:
+
+```awk
+if(var ~ /<regex>/) { ... }
+```
+
 ### Example 1
 
 Print entries in `/etc/passwd` with line numbers and total line count:
@@ -424,7 +447,7 @@ Assume we have a list of songs:
 The whitespaces can be present, but not necessarily. We want to extract track number, song name and format. We could do this with:
 
 ```shell
-sed -n -e 's/^\([0-9]\+\) \?- \?\(\w\+\)\.\(\(\w\|[0-9]\)\+\)$/track: \1, name: \2, format: \3/p'
+sed -n 's/^\([0-9]\+\)s*-\s*\?\(\w\+\)\.\(\(\w\|[0-9]\)\+\)$/track: \1, name: \2, format: \3/p'
 ```
 
 Note: In regular `sed`, it is not possible to do grouping without capturing (as is possible with some other regex conventions by using `(?:<pattern>)` syntax.
@@ -528,7 +551,7 @@ This will give you a list of links within the specified network namespace.
 To move a link to a specific namespace, use:
 
 ```shell
-ip link set <link_name> netns <netns_name>
+ip netns exec <old_netns> ip link set <link_name> netns <new_netns>
 ```
 
 ## nmap
