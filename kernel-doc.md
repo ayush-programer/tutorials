@@ -133,6 +133,9 @@ Similarly, you can iterate over CPUs with one of macros defined [here](https://e
 #define for_each_online_cpu(cpu)   for_each_cpu((cpu), cpu_online_mask)
 #define for_each_present_cpu(cpu)  for_each_cpu((cpu), cpu_present_mask)
 ```
+
+Note: `for_each_online_cpu()` should be used within a `get_online_cpus()` and `put_online_cpus()` section, to prevent the online CPU map changing during iteration.
+
 ## umode type 
 
 For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
