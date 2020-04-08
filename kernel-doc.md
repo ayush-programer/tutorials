@@ -2,10 +2,6 @@
 
 Note: Just for convenience, link references to kernel source code will be for version `5.0`.
 
-## Preemption info
-
-Short summary of low latency and RT can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
-
 ## Kernel version
 
 To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
@@ -17,6 +13,10 @@ char *kernel_version = utsname()->release;
 ```
 
 Note: For the former method include `linux/version.h` and for the latter `linux/utsname.h`.
+
+### Preemption info
+
+Short summary of low latency and RT kernel versions can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
 
 ## printk
 
@@ -126,7 +126,7 @@ You can find definition of `task_struct` in `linux/sched.h`, specifically [here]
 
 ## CPUs
 
-Similarly, you can iterate over CPUs with one of macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/cpumask.h#L777):
+You can iterate over CPUs with one of macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/cpumask.h#L777):
 
 ```c
 #define for_each_possible_cpu(cpu) for_each_cpu((cpu), cpu_possible_mask)
@@ -136,7 +136,60 @@ Similarly, you can iterate over CPUs with one of macros defined [here](https://e
 
 Note: `for_each_online_cpu()` should be used within a `get_online_cpus()` and `put_online_cpus()` section, to prevent the online CPU map changing during iteration.
 
-## umode type 
+Note: You can also find out if CPU is online with `cpu_online(cpu)`.
+
+### Current CPU
+
+To get current CPU id, use `smp_processor_id()`. Be careful, however, as preemption has to be disabled before using it with `preempt_disable()` (and later reenabled with `preempt_enable()`).
+
+### Per-CPU variables
+
+To use per-cpu variables, first include `linux/percpu.h`.
+
+#### Define and declare
+
+You can define a per-cpu variable using the following macro:
+
+```c
+DEFINE_PER_CPU(type, name);
+```
+
+Similarly, you can declare it by using:
+
+```c
+DECLARE_PER_CPU(type, name);
+```
+
+Note: Per-CPU variables can also be exported.
+
+#### Assign and get value
+
+To get from or assign a value to a per-cpu variable, use:
+
+```c
+per_cpu(variable, cpu)
+```
+
+This can be used also as an `lvalue`, so you can type:
+
+```c
+per_cpu(variable, cpu) = 0;
+```
+
+#### Per-CPU section
+
+Preemption usually has to be disabled when dealing with per-CPU variables; for that, you can use:
+
+* `get_cpu_var(variable)` - value can be modified, and preemption is disabled
+* `put_cpu_var(variable)` - end of variable usage, preemption is enabled
+
+Note: You can find out more on per-CPU variables [here](https://lwn.net/Articles/22911/).
+
+## Atomics
+
+Find out more about atomics [here](https://www.infradead.org/~mchehab/kernel_docs/core-api/atomic_ops.html).
+
+## Permissions
 
 For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
 
@@ -914,6 +967,33 @@ int main(void) {
 	return 0;
 }
 ```
+
+# RCU Subsystem
+
+Find out about RCU subsystem [here](https://lwn.net/Articles/262464/). You can get information on debugging RCU stalls and other issues [here](https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt).
+
+# Kernel fine-tuning
+
+Most of the parameters described here can be tweaked via `sysctl` or in `/proc/sys/kernel/` folder.
+
+## Dirty ratio
+
+
+
+## Real-time group scheduling
+
+Information on this topic in detail can be found [here](https://www.kernel.org/doc/Documentation/scheduler/sched-rt-group.txt).
+
+* `sched_rt_period_us` - defines how long one real-time period lasts in microseconds
+* `sched_rt_runtime_us` - defines how much microseconds can a real-time process take from a real-time period defined in the former variable
+
+For example, if real-time period is 1000000us (1s) and real-time runtime is 950000us (0.95s), then, if a real-time process takes 0.95s of time in a second, RT throttling will be activated, and lower priority tasks will be allowed to run (taking the remaining 0.05s).
+
+This can be further customized via cgroups (`CONFIG_RT_GROUP_SCHED` must be enabled).
+
+## Round Robin
+
+One can also specify how much time can a `SCHED_RR` task take in milliseconds via `sched_rr_timeslice_ms` variable.
 
 # Kernel Debugging
 

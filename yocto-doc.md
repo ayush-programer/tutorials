@@ -32,6 +32,10 @@ The `<machine>` variable is the one you have set in `build/conf/local.conf` as t
 
 To exit, press `CTRL + a` followed by `x`.
 
+Note: Further information on using QEMU can be found [here](https://qemu.weilnetz.de/doc/qemu-doc.html).
+
+Note: You can configure the target machine for QEMU in the `meta/conf/machine` folder (use switches and options from the former link).
+
 ## Use `systemd`
 
 To use `systemd` instead of `systemV`, just add these lines to `build/conf/local.conf`:
@@ -42,6 +46,16 @@ VIRTUAL-RUNTIME_init_manager = "systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_initscripts = ""
 ```
+
+## Yocto SDK
+
+To generate Yocto SDK, run:
+
+```shell
+bitbake -c populate_sdk <IMAGE_NAME>
+```
+
+Bitbake will provide you with the path to the SDK installation script.
 
 ## Recipes
 
@@ -135,6 +149,22 @@ $ bitbake hello-mod
 If there are any error messages, handle them accordingly.
 
 Once built, you can copy it to the target system and run with `sudo insmod <path_to_hello-mod.ko>`. Note that kernel versions have to match: `vermagic.o` is linked against the module to check this.
+
+### Kernel Module via Yocto SDK
+
+In order to be able to build an out-of-tree kernel module via Yocto SDK, it is neccessary to provide the SDK with kernel source. This can be done by adding the following line to the `local.conf` or `machine.conf` file:
+
+```shell
+TOOLCHAIN_TARGET_TASK_append = " kernel-devsrc"
+```
+
+After populating and installing the SDK, and after sourcing the SDK script, go to the following folder:
+
+```
+<SDK_PATH>/sysroots/<MACHINE>/usr/src/kernel
+```
+
+Then, run `make modules_prepare`. After that you can use this folder as the `KERNEL_SRC` variable in your `Makefile`.
 
 ## Layers
 
