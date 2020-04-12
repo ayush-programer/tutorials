@@ -122,7 +122,7 @@ for_each_process_thread(g, p) {
 read_unlock(&tasklist_lock);
 ```
 
-You can find definition of `task_struct` in `linux/sched.h`, specifically [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/sched.h#L592).
+Note: You can find definition of `task_struct` in `linux/sched.h`, specifically [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/sched.h#L592). This struct is initialized statically in `init/init_task.c`, and can be found [here](https://elixir.bootlin.com/linux/v5.0/source/init/init_task.c#L57).
 
 ## CPUs
 
