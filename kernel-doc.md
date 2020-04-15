@@ -2,6 +2,109 @@
 
 Note: Just for convenience, link references to kernel source code will be for version `5.0`.
 
+## Kernel Source Folder Structure
+
+### `arch/`
+
+architecture specific code:
+
++ low memory management
++ interrupt handling
++ early initialization
+
+### `crypto/`
+
+cryptographic API used by kernel itself
+
+### `drivers/`
+
+code to run peripheral devices:
+
++ video
++ low-level SCSI
+
+#### `drivers/net`
+
+network card drivers
+
+### `fs/`
+
++ generic filesystem code (Virtual File System)
++ code for each different filesystem (e.g. `ext2`)
+
+### `include/`
+
+header files
+
+#### `include/asm-<arch>/`
+
+architecture specific header files
+
+### `init/`
+
+code for creating early userspace and:
+
++ `main.c`
++ `version.c` - defines Linux version string
+
+### `ipc/`
+
+Inter Process Communication:
+
++ shared memory
++ semaphores
+
+### `kernel/`
+
+generic kernel level code:
+
++ upper level system call
++ printk()
++ scheduler
++ signal handling
+
+### `lib/`
+
+routines of generic usefulness
+
++ common string operations
++ debugging routines
++ line parsing
+
+### `mm/`
+
+high level memory management code with:
+
++ early boot memory management
++ memory mapping of files
++ management of page caches
++ memory allocation
++ swap out of pages in RAM
+
+### `net/`
+
+high-level networking code (low-level network drivers pass packets here)
+
+#### `net/core/`
+
+code for most of different network protocols
+
+### `scripts/`
+
+scripts useful in building the kernel
+
+### `security/`
+
+code for different Linux security models
+
+### `sound/`
+
+drivers for sounds cards etc.
+
+### `usr/`
+
+code that builds a cpio-format archive containing a root filesystem image
+
 ## Kernel version
 
 To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
