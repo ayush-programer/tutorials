@@ -617,6 +617,12 @@ For `<mode>` you can choose:
 
 # Git
 
+## List tracked files
+
+```shell
+git ls-tree -r master --name-only
+```
+
 ## List incoming / outgoing commits
 
 After doing a `git fetch`, you might want to see commits that have been loaded from upstream:
