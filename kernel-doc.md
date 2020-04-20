@@ -1116,3 +1116,35 @@ info line *0xc081d0f8
 
 If the address is valid, you should be able to get the exact line of code where exception happened.
 
+## lockdep
+
+Lockdep is used for deadlock detection in the kernel code. To enable it, run `menuconfig` and enable following features:
+
+```
+ 1. [*] Detect Hard and Soft Lockups
+ 2. [*] Detect Hung Tasks
+ 3. [*] RT Mutex debugging, deadlock detection
+ 4. -*- Spinlock and rw-lock debugging: basic checks
+ 5. -*- Mutex debugging: basic checks
+ 6. -*- Lock debugging: detect incorrect freeing of live locks
+ 7. [*] Lock debugging: prove locking correctness
+ 8. [*] Lock usage statistics
+```
+
+After recompiling the kernel, you should see the following new folders:
+
+```
+/proc/lockdep
+/proc/lockdep_chains
+/proc/lockdep_stat
+/proc/locks
+/proc/lock_stats
+```
+
+If you are running a kernel module or driver via a specific application you can use:
+
+```shell
+ps -e -o comm,stat | grep <app_name>
+```
+
+If you see a `+D` (uninterruptible sleep) state, run `dmesg` to see lockdep printouts.
