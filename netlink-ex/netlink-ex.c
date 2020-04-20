@@ -8,10 +8,8 @@ static struct sock *netlink_sock;
 static void nl_input(struct sk_buff *skb)
 {
 	struct nlmsghdr *nl_message_header;
-	char* message;
 
 	nl_message_header = nlmsg_hdr(skb);
-	//message = (char*)nlmsg_data(nl_message_header);
 
 	pr_err("Got message: %s\n", (char*)nlmsg_data((struct nlmsghdr*)skb->data));
 }
