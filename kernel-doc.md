@@ -1268,3 +1268,5 @@ ps -e -o comm,stat | grep <app_name>
 ```
 
 If you see a `+D` (uninterruptible sleep) state, run `dmesg` to see lockdep printouts.
+
+Note: You can read more about lockdep [here](https://www.kernel.org/doc/Documentation/locking/lockdep-design.txt).
