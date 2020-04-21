@@ -565,6 +565,98 @@ To copy from kernel-space to user-space:
 unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
 ```
 
+## Synchronization
+
+### Semaphores / Mutexes
+
+Semaphores are defined in `linux/semaphore.h`.
+
+#### Initialization
+
+To initialize, use:
+
+```c
+void sema_init(struct semaphore *sem, int val);
+```
+
+To initialize semaphore as a mutex at compile time, use:
+
+```c
+DECLARE_MUTEX(name);
+DECLARE_MUTEX_LOCKED(name);
+```
+
+To initialize a mutex at runtime:
+
+```c
+void init_MUTEX(struct semaphore *sem);
+void init_MUTEX_LOCKED(struct semaphore *sem);
+```
+
+#### Locking
+
+Each of the following functions takes `struct semaphore*` as an argument:
+
+|       function       |                description               | ret  |
+|----------------------|------------------------------------------|------|
+|        `down`        | decrement / acquire lock                 | void |
+| `down_interruptible` | like `down`, but can be interrupted      | int  |
+|   `down_killable`    | like `down`, but process can be killed   | int  |
+|    `down_trylock`    | returns with non-zero value on lock fail | int  |
+|         `up`         | increment / release lock                 | void |
+
+Note: Common pattern with `down_interruptible` in device drivers is to return `-ERESTARTSYS` (to restart the call) or `-EINTR` (if restarting is impossible).
+
+### Reader/Writer Semaphores
+
+Include `linux/rwsem.h`.
+
+#### Initialization
+
+To initialize the `rwsem`, use:
+
+```c
+void init_rwsem(struct rw_semaphore* sem);
+```
+
+#### Locking
+
+All of the following functions take `struct rw_semaphore*` as argument:
+
+|       function       |               description          | ret  |
+|----------------------|------------------------------------|------|
+|      `down_read`     | reader lock                        | void |
+| `down_read_trylock`  | return non-zero on read lock fail  | int  |
+|       `up_read`      | reader unlock                      | void |
+|     `down_write`     | writer lock                        | void |
+| `down_write_trylock` | return non-zero on write lock fail | int  |
+|       `up_write`     | writer unlock                      | void |
+|  `downgrade_write`   | allow other readers after write    | void |
+
+### Spinlocks
+
+### Completion
+
+Include `linux/completion.h` then define and initialize:
+
+```c
+struct completion my_completion;
+
+init_completion(&my_completion);
+```
+
+Then, to wait for completion:
+
+```c
+wait_for_completion(&my_completion);
+```
+
+To signal completion:
+
+```c
+complete(&my_completion);
+```
+
 ## Linked lists
 
 ### Definition
@@ -656,6 +748,112 @@ struct node_el *entry;
 list_for_each_safe(ptr, tmp, &my_list) {
 	list_del(ptr);
 }
+```
+
+### High Resolution Timer
+
+First, include `linux/hrtimer.h`.
+
+#### Initialization
+
+To initialize `hrtimer`, use:
+
+```c
+void hrtimer_init(struct hrtimer *timer, clockid_t which_clock,
+		  enum hrtimer_mode mode);
+```
+
+Values for `which_clock` are defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/uapi/linux/time.h#L71) as:
+
+```c
+#define CLOCK_REALTIME			0
+#define CLOCK_MONOTONIC			1
+#define CLOCK_PROCESS_CPUTIME_ID	2
+#define CLOCK_THREAD_CPUTIME_ID		3
+#define CLOCK_MONOTONIC_RAW		4
+#define CLOCK_REALTIME_COARSE		5
+#define CLOCK_MONOTONIC_COARSE		6
+#define CLOCK_BOOTTIME			7
+#define CLOCK_REALTIME_ALARM		8
+#define CLOCK_BOOTTIME_ALARM		9
+```
+
+You can find options for `hrtimer_mode` [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L26). The following can be combined (with only `ABS` and `REL` being mutually exclusive):
+
+```c
+/*
+ * Mode arguments of xxx_hrtimer functions:
+ *
+ * HRTIMER_MODE_ABS		- Time value is absolute
+ * HRTIMER_MODE_REL		- Time value is relative to now
+ * HRTIMER_MODE_PINNED		- Timer is bound to CPU (is only considered
+ *				  when starting the timer)
+ * HRTIMER_MODE_SOFT		- Timer callback function will be executed in
+ *				  soft irq context
+ */
+```
+
+#### Set the callback
+
+Once `struct hrtimer* my_timer` has been initialized, define the callback as:
+
+```c
+enum hrtimer_restart timer_callback(struct hrtimer *timer)
+```
+
+The return value can be found [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L53), defined as:
+
+```c
+enum hrtimer_restart {
+	HRTIMER_NORESTART,	/* Timer is not restarted */
+	HRTIMER_RESTART,	/* Timer must be restarted */
+};
+```
+
+Note: In case of `HRTIMER_RESTART`, forward the hrtimer expiry by using the function (defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L451):
+
+```c
+static inline u64 hrtimer_forward_now(struct hrtimer *timer,
+				      ktime_t interval)
+```
+
+Then, simply add the callback to the `struct hrtimer* my_timer` by using:
+
+```c
+my_timer.function = timer_callback;
+```
+
+#### Start hrtimer
+
+To start the `hrtimer`, use the following function (defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L384)):
+
+```c
+/**
+ * hrtimer_start - (re)start an hrtimer
+ * @timer:	the timer to be added
+ * @tim:	expiry time
+ * @mode:	timer mode: absolute (HRTIMER_MODE_ABS) or
+ *		relative (HRTIMER_MODE_REL), and pinned (HRTIMER_MODE_PINNED);
+ *		softirq based mode is considered for debug purpose only!
+ */
+static inline void hrtimer_start(struct hrtimer *timer, ktime_t tim,
+				 const enum hrtimer_mode mode)
+```
+
+For `ktime_t` argument, include `linux/ktime.h` and use:
+
+```c
+static inline ktime_t ktime_set(const s64 secs, const unsigned long nsecs)
+```
+
+This function is defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/ktime.h#L30).
+
+#### Cancel
+
+To cancel the timer, use:
+
+```c
+int hrtimer_cancel(struct hrtimer *timer);
 ```
 
 ## Kernel modules
@@ -781,84 +979,6 @@ If instead of `S_IRUGO` there was `0`, this file would not be exposed, i.e. user
 | `invbool`   | `uint`      | `long`      |
 | `charp`     | `ulong`     | `ushort`    |
 | `int`       | `long`      | `intarray`  |
-
-### Simple hrtimer example
-
-We will simply expand on the previous example.
-
-```c
-#include <linux/module.h>
-#include <linux/hrtimer.h>
-#include <linux/ktime.h>
-
-static struct hrtimer my_hrtimer;
-ktime_t my_ktime;
-char* name = "world";
-
-// timer callback function
-enum hrtimer_restart timer_callback(struct hrtimer *timer)
-{
-	pr_err("Hello, %s!\n", name);
-
-	// code to run on timer expire
-
-	// forward the timer expiry
-	hrtimer_forward_now(timer, my_ktime);
-
-	return HRTIMER_RESTART;
-}
-
-static int __init hrt_start(void)
-{
-	// ktime_set(sec, nsec); here it is 2.5 seconds
-	my_ktime = ktime_set(2, 5000000);
-
-	hrtimer_init(&my_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-	my_hrtimer.function = &timer_callback;
-	hrtimer_start(&my_hrtimer, my_ktime, HRTIMER_MODE_REL);
-
-	return 0;
-}
-
-static void __exit hrt_end(void)
-{
-	pr_err("Goodbye, %s!\n", name);
-	hrtimer_cancel(&my_hrtimer);
-}
-
-module_param(name, charp, S_IRUGO|S_IWUSR);
-module_init(hrt_start);
-module_exit(hrt_end);
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Stjepan Poljak");
-MODULE_DESCRIPTION("hrtimer example");
-MODULE_VERSION("0.1");
-```
-
-This code will run `timer_callback` every `2.5` seconds. Try:
-
-```shell
-dmesg -w
-```
-
-And in other terminal window, do:
-
-```shell
-sudo insmod hello.ko name="Stjepan"
-```
-
-You should see the message repeated every `2.5` seconds.
-
-You will also notice that here we typed `S_IRUGO|S_IWUSR` as third argument of the `module_param`. The `S_IWUSR` allows superuser to change the parameter at runtime! Try:
-
-```shell
-sudo bash -c 'echo -n "Stjepan" >> /sys/module/hello/parameters/name'
-```
-
-Note: This may cause concurrency issues, so avoid using it altogether (but it's fun to play with).
-
-Check for more useful `hrtimer` functions in `include/linux/hrtimer.h`.
 
 ### Char driver
 
