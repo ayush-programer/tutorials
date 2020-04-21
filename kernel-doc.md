@@ -625,12 +625,12 @@ All of the following functions take `struct rw_semaphore*` as argument:
 
 |       function       |               description          | ret  |
 |----------------------|------------------------------------|------|
-|      `down_read`     | reader lock                        | void |
+|     `down_read`      | reader lock                        | void |
 | `down_read_trylock`  | return non-zero on read lock fail  | int  |
-|       `up_read`      | reader unlock                      | void |
+|      `up_read`       | reader unlock                      | void |
 |     `down_write`     | writer lock                        | void |
 | `down_write_trylock` | return non-zero on write lock fail | int  |
-|       `up_write`     | writer unlock                      | void |
+|      `up_write`      | writer unlock                      | void |
 |  `downgrade_write`   | allow other readers after write    | void |
 
 ### Spinlocks
