@@ -6,7 +6,7 @@ Note: Just for convenience, link references to kernel source code will be for ve
 
 ### `arch/`
 
-architecture specific code:
+Architecture specific code:
 
 + low memory management
 + interrupt handling
@@ -14,35 +14,37 @@ architecture specific code:
 
 ### `crypto/`
 
-cryptographic API used by kernel itself
+Cryptographic API used by kernel itself.
 
 ### `drivers/`
 
-code to run peripheral devices:
+Code to run peripheral devices:
 
 + video
 + low-level SCSI
 
 #### `drivers/net`
 
-network card drivers
+Network card drivers.
 
 ### `fs/`
+
+Contains:
 
 + generic filesystem code (Virtual File System)
 + code for each different filesystem (e.g. `ext2`)
 
 ### `include/`
 
-header files
+Header files.
 
 #### `include/asm-<arch>/`
 
-architecture specific header files
+Architecture specific header files.
 
 ### `init/`
 
-code for creating early userspace and:
+Code for creating early userspace and:
 
 + `main.c`
 + `version.c` - defines Linux version string
@@ -56,7 +58,7 @@ Inter Process Communication:
 
 ### `kernel/`
 
-generic kernel level code:
+Generic kernel level code:
 
 + upper level system call
 + printk()
@@ -65,7 +67,7 @@ generic kernel level code:
 
 ### `lib/`
 
-routines of generic usefulness
+Routines of generic usefulness:
 
 + common string operations
 + debugging routines
@@ -73,7 +75,7 @@ routines of generic usefulness
 
 ### `mm/`
 
-high level memory management code with:
+High level memory management code with:
 
 + early boot memory management
 + memory mapping of files
@@ -83,27 +85,27 @@ high level memory management code with:
 
 ### `net/`
 
-high-level networking code (low-level network drivers pass packets here)
+High-level networking code (low-level network drivers pass packets here).
 
 #### `net/core/`
 
-code for most of different network protocols
+Code for most of different network protocols.
 
 ### `scripts/`
 
-scripts useful in building the kernel
+Scripts useful in building the kernel.
 
 ### `security/`
 
-code for different Linux security models
+Code for different Linux security models.
 
 ### `sound/`
 
-drivers for sounds cards etc.
+Drivers for sounds cards etc.
 
 ### `usr/`
 
-code that builds a cpio-format archive containing a root filesystem image
+Code that builds a cpio-format archive containing a root filesystem image.
 
 ## Kernel version
 
@@ -635,6 +637,45 @@ All of the following functions take `struct rw_semaphore*` as argument:
 
 ### Spinlocks
 
+Spinlocks have better performance than semaphores and can be used in code that cannot sleep (interrupt handlers). Include `linux/spinlock.h`.
+
+#### Initialization
+
+To initialize spinlock at compile time:
+
+```c
+spinlock_t my_lock = SPIN_LOCK_UNLOCKED;
+```
+
+Initialization at runtime:
+
+```c
+void spin_lock_init(spinlock_t* lock);
+```
+
+#### Locking
+
+All of the following functions have `void` return type and take `spinlock_t*` as argument, except `spin_lock_irqsave` and `spin_lock_irqrestore` which take `unsigned long flags` as second argument:
+
+|        function        |             description             | ret  |
+|------------------------|-------------------------------------|------|
+|      `spin_lock`       | lock                                | void |
+|     `spin_unlock`      | unlock                              | void |
+|  `spin_lock_irqsave`   | lock, disable IRQs, save flags      | void |
+|`spin_unlock_irqrestore`| unlock, enable IRQs, restore flags  | void |
+|    `spin_lock_irq`     | lock, disable IRQS                  | void |
+|   `spin_unlock_irq`    | lock, enable IRQS                   | void |
+|     `spin_lock_bh`     | lock, disable soft IRQs             | void |
+|    `spin_unlock_bh`    | unlock, enable soft IRQs            | void |
+|     `spin_trylock`     | return 0 if lock fails              | void |
+|   `spin_trylock_bh`    | disable soft IRQs, return 0 on fail | void |
+
+Note: All spinlock waits are uninterruptible.
+
+Note: Any code holding a spinlock must be atomic, i.e. it cannot sleep.
+
+Note: `spin_lock_irqsave` and `spin_lock_irqrestore` must be called in the same function (due to architecture-dependent behaviour). If you are sure nothing else might have already disabled interrupts (or, if you want to be sure that interrupts are enabled when spinlock is released), it's better to use `spin_lock_irq` and `spin_unlock_irq`.
+
 ### Completion
 
 Include `linux/completion.h` then define and initialize:
@@ -644,6 +685,8 @@ struct completion my_completion;
 
 init_completion(&my_completion);
 ```
+
+Note: 
 
 Then, to wait for completion:
 
@@ -655,6 +698,14 @@ To signal completion:
 
 ```c
 complete(&my_completion);
+```
+
+Note: `complete` wakes up only one of the waiting threads, while `complete_all` allows all of them to proceed.
+
+Note: If using `complete_all`, completion must be reinitialized with:
+
+```c
+INIT_COMPLETION(struct completion c);
 ```
 
 ## Linked lists
