@@ -708,9 +708,11 @@ Note: If using `complete_all`, completion must be reinitialized with:
 INIT_COMPLETION(struct completion c);
 ```
 
-## Linked lists
+## Data structures
 
-### Definition
+### Linked lists
+
+#### Definition
 
 This is a definition of `list_head` (include it from `linux/types.h`):
 
@@ -733,7 +735,7 @@ struct node_el {
 
 This is why definition of linked list is "upside down" in the kernel, i.e. why `list_head` is inside `struct node_el`, and not vice versa (this is really more of a graph than a linked list). The rest of linked list code can be found in `include/linux/list.h`.
 
-### Initialization
+#### Initialization
 
 To declare and initialize the linked list:
 
@@ -750,7 +752,7 @@ LIST_HEAD(my_list);
 
 This will initialize the list at compile time.
 
-### Add an element
+#### Add an element
 
 To add an element to a linked list, first define a pointer to `struct node_el`:
 
@@ -770,7 +772,7 @@ This is great for implementing stacks. For queues, try:
 list_add_tail(&new_el->list1, &my_list);
 ```
 
-### Iterate over list
+#### Iterate over list
 
 ```c
 struct list_head *ptr;
@@ -781,7 +783,7 @@ list_for_each(ptr, &my_list) {
 }
 ```
 
-### Deinitialize
+#### Deinitialize
 
 To delete an element from the list:
 
@@ -801,11 +803,97 @@ list_for_each_safe(ptr, tmp, &my_list) {
 }
 ```
 
-### High Resolution Timer
+### kfifo
+
+Defined in `linux/kfifo.h` (link is [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/kfifo.h)), kfifo is a lockless circular buffer.
+
+#### Initialization
+
+To define and initialize kfifo during compile time, use:
+
+```c
+DECLARE_KFIFO(fifo, type, size);
+
+INIT_KFIFO(fifo);
+```
+
+Similarly, to define and initialize during runtime:
+
+```c
+struct kfifo fifo;
+```
+
+With runtime approach you also need to allocate the buffer with the following macro (returns zero on success):
+
+```c
+kfifo_alloc(&fifo, size, gfp_mask);
+```
+
+#### Adding data
+
+You can add a single element to kfifo with:
+
+```c
+kfifo_put(&fifo, element);
+```
+
+Similarly, you can copy data from another buffer by using:
+
+```c
+kfifo_in(&fifo, buffer, count);
+```
+
+#### Obtaining data
+
+To get kfifo length, use:
+
+```c
+kfifo_len(&fifo);
+```
+
+You can get a single element from kfifo with:
+
+```c
+kfifo_get(&fifo, &element);
+```
+
+To get more elements from kfifo to a buffer:
+
+```c
+kfifo_out(&fifo, buffer, count);
+```
+
+You can also skip the first element with `kfifo_skip(&fifo)` and see the value of the first element in kfifo without removing it by using `kfifo_peek(&fifo, &element)`.
+
+#### Kernel-space and user-space
+
+You can copy kfifo directly to user-space with:
+
+```c
+kfifo_to_user(&fifo, buffer, count, &copied);
+```
+
+Similarly, to copy from user-space:
+
+```c
+kfifo_from_user(&fifo, buffer, count, &copied);
+```
+
+Note: On success, both of these macros return zero, and will put number of copied elements in `unsigned int copied` variable.
+
+#### Deinitialization
+
+If kfifo has been initialized at runtime, you need to free it with:
+
+```c
+kfifo_free(&fifo);
+```
+
+## High Resolution Timer
 
 First, include `linux/hrtimer.h`.
 
-#### Initialization
+### Initialization
 
 To initialize `hrtimer`, use:
 
@@ -844,7 +932,7 @@ You can find options for `hrtimer_mode` [here](https://elixir.bootlin.com/linux/
  */
 ```
 
-#### Set the callback
+### Set the callback
 
 Once `struct hrtimer* my_timer` has been initialized, define the callback as:
 
@@ -874,7 +962,7 @@ Then, simply add the callback to the `struct hrtimer* my_timer` by using:
 my_timer.function = timer_callback;
 ```
 
-#### Start hrtimer
+### Start hrtimer
 
 To start the `hrtimer`, use the following function (defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L384)):
 
@@ -899,7 +987,7 @@ static inline ktime_t ktime_set(const s64 secs, const unsigned long nsecs)
 
 This function is defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/ktime.h#L30).
 
-#### Cancel
+### Cancel
 
 To cancel the timer, use:
 
@@ -1107,9 +1195,9 @@ int __read_mostly example_control = 0;
 
 Note: The `__read_mostly` keyword only tells the compiler it will rarely be written (and more often read).
 
-## syscalls
+## Syscalls
 
-### add new syscall
+### Add new syscall
 
 First, create a folder `hello` in kernel repo root folder containing two files:
 
@@ -1190,9 +1278,9 @@ Note that all of this might vary, but could give you a good insight in how to ad
 
 Just edit `arch/x86/syscalls/syscall_64.tbl` and arch/x86/syscalls/syscall_32.tbl`, and add your system call to the end of the list.
 
-### syscall from shell
+### Syscall from shell
 
-#### using Python
+#### Using Python
 
 For example, on `x86` architecture, you can try:
 
@@ -1210,7 +1298,7 @@ $ python -c "import ctypes; print ctypes.CDLL(None).syscall(39);"
 
 Note: This requires the `ctypes` library so it is not guaranteed to work.
 
-#### using Perl
+#### Using Perl
 
 In lieu of the Python examples above, you can also try the following:
 
@@ -1226,7 +1314,7 @@ $ perl -e 'print syscall(39);'
 13155
 ```
 
-### syscall in C
+### Syscall in C
 
 This is an example of a system call in C:
 
@@ -1242,7 +1330,7 @@ int main(void) {
 }
 ```
 
-# RCU Subsystem
+# RCU subsystem
 
 Find out about RCU subsystem [here](https://lwn.net/Articles/262464/). You can get information on debugging RCU stalls and other issues [here](https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt).
 
@@ -1252,14 +1340,15 @@ Most of the parameters described here can be tweaked via `sysctl` or in `/proc/s
 
 ## Dirty ratio
 
-
+* `vm.dirty_background_ratio` - percentage of memory that can be filled with dirty pages (system will allow this much cache in RAM without flushing)
+* `vm.dirty_ratio` - absolute maximum of memory that can be filled with dirty pages (system will block until flush occurs)
 
 ## Real-time group scheduling
 
 Information on this topic in detail can be found [here](https://www.kernel.org/doc/Documentation/scheduler/sched-rt-group.txt).
 
-* `sched_rt_period_us` - defines how long one real-time period lasts in microseconds
-* `sched_rt_runtime_us` - defines how much microseconds can a real-time process take from a real-time period defined in the former variable
+* `kernel.sched_rt_period_us` - defines how long one real-time period lasts in microseconds
+* `kernel.sched_rt_runtime_us` - defines how much microseconds can a real-time process take from a real-time period defined in the former variable
 
 For example, if real-time period is 1000000us (1s) and real-time runtime is 950000us (0.95s), then, if a real-time process takes 0.95s of time in a second, RT throttling will be activated, and lower priority tasks will be allowed to run (taking the remaining 0.05s).
 
@@ -1269,7 +1358,7 @@ This can be further customized via cgroups (`CONFIG_RT_GROUP_SCHED` must be enab
 
 One can also specify how much time can a `SCHED_RR` task take in milliseconds via `sched_rr_timeslice_ms` variable.
 
-# Kernel Debugging
+# Kernel debugging
 
 ## gdb
 
@@ -1322,7 +1411,7 @@ If you see a `+D` (uninterruptible sleep) state, run `dmesg` to see lockdep prin
 
 Note: You can read more about lockdep [here](https://www.kernel.org/doc/Documentation/locking/lockdep-design.txt).
 
-## Useful Links
+## Useful links
 
 * [Linux Insides](https://0xax.gitbooks.io/linux-insides/)
 * [Linux Kernel Labs](https://linux-kernel-labs.github.io/refs/heads/master/index.html)
