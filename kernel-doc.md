@@ -2,7 +2,7 @@
 
 Note: Just for convenience, link references to kernel source code will be for version `5.0`.
 
-## Kernel Source Folder Structure
+## Kernel source folder structure
 
 ### `arch/`
 
@@ -569,7 +569,7 @@ unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
 
 ## Synchronization
 
-### Semaphores / Mutexes
+### Semaphores / mutexes
 
 Semaphores are defined in `linux/semaphore.h`.
 
@@ -609,7 +609,7 @@ Each of the following functions takes `struct semaphore*` as an argument:
 
 Note: Common pattern with `down_interruptible` in device drivers is to return `-ERESTARTSYS` (to restart the call) or `-EINTR` (if restarting is impossible).
 
-### Reader/Writer Semaphores
+### Reader / writer semaphores
 
 Include `linux/rwsem.h`.
 
@@ -774,11 +774,25 @@ list_add_tail(&new_el->list1, &my_list);
 
 #### Iterate over list
 
+You can iterate over a list by using this simple pattern:
+
 ```c
-struct list_head *ptr;
-struct node_el *entry;
+struct list_head* ptr;
+struct node_el* entry;
 
 list_for_each(ptr, &my_list) {
+	entry = list_entry(ptr, struct node_el, list1);
+}
+```
+
+Also, the safe version will guard against any deletions during iteration:
+
+```c
+struct list_head* ptr;
+struct list_head* tmp;
+struct node_el* entry;
+
+list_for_each_safe(ptr, tmp, &my_list) {
 	entry = list_entry(ptr, struct node_el, list1);
 }
 ```
