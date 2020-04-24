@@ -687,7 +687,7 @@ To unstage a file:
 git reset -- <filename>
 ```
 
-# tmux
+## tmux
 
 |        action       |    shortcut   |
 |---------------------|---------------|
@@ -696,9 +696,9 @@ git reset -- <filename>
 | Split window (ver.) |  `TCRL & %`   |
 | Window full screen  |  `TCRL & z`   |
 
-# Vim
+## Vim
 
-## Shortcuts
+### Shortcuts
 
 |        action       |    shortcut   |
 |---------------------|---------------|
@@ -736,7 +736,7 @@ git reset -- <filename>
 
 Note: The `&` means here "followed by" and not "at the same time" (which is `+`).
 
-## Commands
+### Commands
 
 |    command    |     action      |
 |---------------|-----------------|
@@ -745,7 +745,7 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 |     `:q`      | quit            |
 |`:colorscheme` | set colorscheme |
 
-## Miscellaneous
+### Miscellaneous
 
 |  symbol  |              meaning             |
 |----------|----------------------------------|
@@ -754,7 +754,7 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 | `<num>`  |  input line `<num>`              |
 |`:<a>,<b>`|  input range from `<a>` to `<b>` |
 
-## Search
+### Search
 
 See:
 
@@ -764,7 +764,7 @@ See:
 :help 'smartcase'
 ```
 
-## Shell
+### Shell
 
 To pipe input to a shell command, you can use the selection or visual block, and write something like this:
 
@@ -790,7 +790,55 @@ Similarly, for `xclip`:
 :r !xclip -o -selection clipboard
 ```
 
-# Makefile
+## GDB basics
+
+To insert a breakpoint by line number:
+
+```
+(gdb) break <source_file>:<line_number>
+```
+
+Also, you can break at a particular function:
+
+```
+(gdb) break <source_file>:<function_name>
+```
+
+Then, you can simply use:
+
+```
+(gdb) run
+```
+
+To do a step after running stops (after a breakpoint):
+
+```
+(gdb) step
+```
+
+Similarly, to do a step, but without entering a function call, use:
+
+```
+(gdb) next
+```
+
+To see values of current variables:
+
+```
+(gdb) info locals
+```
+
+To step back out of function invocation:
+
+```
+(gdb) finish
+```
+
+To continue execution until next breakpoint:
+
+```
+(gdb) continue
+```
 
 # ARM Assembly
 
