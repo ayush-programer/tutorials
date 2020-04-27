@@ -40,24 +40,24 @@ extern "C" {
 
 The C++ standard library contains:
 
-* *containers* - data structures holding sequences of objects:
-  * _sequence containers_ - provide accesses to sequences of elements, like arrays
-  * _associative containers_ - contain key/value pairs
-* *algorithms* - counting, searching, sorting and transforming
-* *iterators* - connect containers with algorithms
+* **containers** - data structures holding sequences of objects:
+  * *sequence containers* - provide accesses to sequences of elements, like arrays
+  * *associative containers* - contain key/value pairs
+* **algorithms** - counting, searching, sorting and transforming
+* **iterators** - connect containers with algorithms
 
 ## Storage duration
 
 There are three types of storage duration:
 
-* *automatic* - automatic object is allocated at the beginning of an enclosing code block
-* *static* - declared using the `static` or `extern` keyword (variables declared at global or namespace scope are implicitly `static`):
-  * _global static variable_
-  * _local static variable_ - lifetime from declaration at function scope until program exits
-  * _static members_ - members of a class not associated with a particular instance of a class
-* *thread-local* - each thread will have its own copy of the object that has `thread_local` keyword added to `static` or `extern`
+* **automatic** - automatic object is allocated at the beginning of an enclosing code block
+* **static** - declared using the `static` or `extern` keyword (variables declared at global or namespace scope are implicitly `static`):
+  * *global static variable*
+  * *local static variable* - lifetime from declaration at function scope until program exits
+  * *static members* - members of a class not associated with a particular instance of a class
+* **thread-local** - each thread will have its own copy of the object that has `thread_local` keyword added to `static` or `extern`
 
-* *dynamic* - allocated and deallocated on request (with `new` and `delete` keywords)
+* **dynamic** - allocated and deallocated on request (with `new` and `delete` keywords)
 
 ## Values
 
@@ -147,9 +147,9 @@ The `auto` keyword allows compiler to deduce the type of the variable.
 
 The `const` keyword can be used to:
 
-* make *function arguments* (pointers and references) read-only
-* promise *methods* won't modify current object's state (place `const` keyword after method name and argument list, but before the body brackets)
-* disable modification of *member variables* after their initialization
+* make **function arguments** (pointers and references) read-only
+* promise **methods** won't modify current object's state (place `const` keyword after method name and argument list, but before the body brackets)
+* disable modification of **member variables** after their initialization
 
 ### `mutable`
 
