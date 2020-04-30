@@ -111,7 +111,7 @@ std::string = "hello";
 int c = a + b;
 ```
 
-Here, everything on right-hand side is an `rvalue` (even `a+b`, as its storage is only temporary, until passed to `c`).
+Here, everything on right-hand side is an `rvalue` (even `a + b`, as its storage is only temporary, until passed to `c`).
 
 Note: It is possible to hack in order to have a reference to `rvalue`:
 

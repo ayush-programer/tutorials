@@ -1374,6 +1374,16 @@ One can also specify how much time can a `SCHED_RR` task take in milliseconds vi
 
 # Kernel debugging
 
+## Kernel panic
+
+To trigger kernel panic, you can use:
+
+```shell
+echo c > /proc/sysrq-trigger
+```
+
+To find out more on how to use this behaviour, click [here](https://www.kernel.org/doc/html/latest/admin-guide/sysrq.html).
+
 ## gdb
 
 First, load vmlinux with debug symbols into gdb:
