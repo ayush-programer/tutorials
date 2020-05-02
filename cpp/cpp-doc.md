@@ -137,7 +137,7 @@ void func(int&& arg) {
 
 Latter function definition is useful as an optimization hack, and is usually paired up with the former definition, as an overloaded function.
 
-## Keywords
+## Keywords and identifiers
 
 ### `auto`
 
@@ -197,8 +197,24 @@ try {
 
 ## Patterns
 
+### Initialization
+
+Variables should be initialized with the bracket syntax, as it is the safest (won't generate garbage value):
+
+```cpp
+int x {};
+float y { 5.0 };
+int z[] { 1, 2, 3 };
+```
+
+Note: `x` will be initialized to `0`.
+
 ### Structured binding declaration
 
 You can do primitive pattern matching, e.g. in error handling by using `return { data, success }` in a function (here: `function()`), and then retrieveng it with `auto [ data, success ] = function();`.
+
+### Future / promise
+
+This is equivalent to conditional variable wait (consumer) and signal (producer), respectively.
 
 
