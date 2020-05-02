@@ -165,6 +165,14 @@ Mark any function with `noexcept` that you are sure cannot throw an exception (s
 
 Note: You can also use `noexcept(<expression>)` to conditionally mark function as `noexpect` (if and only if `<expression>` evaluates to `true`).
 
+### `override`
+
+If you want to override a virtual method, then, within the implementation, add the `override` keyword to the method's declaration (after argument list).
+
+### `virtual`
+
+If you want to permit a derived class to override a base class's methods, you use the `virtual` keyword. If you want to require a derived class to implement the method, you can append the `=0` suffix to a method definition (such methods are called pure virtual methods);
+
 ## Exception handling
 
 ### Standard exception classes
@@ -281,6 +289,8 @@ class SomeObject {
 };
 ```
 
+Note: Depending on what you define: destructor, copy constructor, move assignment, move constructor or move assignment, compiler will generate some (according to some rules). This is however discouraged, and any modifications to these semantics should explicitely define constructors / destructors along with `delete` on the ones not intended for use. 
+
 ## Patterns
 
 ### Initialization
@@ -299,8 +309,54 @@ Note: `x` will be initialized to `0`.
 
 You can do primitive pattern matching, e.g. in error handling by using `return { data, success }` in a function (here: `function()`), and then retrieveng it with `auto [ data, success ] = function();`.
 
+### Polymorphism
+
+Polymorphic code is code you write once and can reuse with different types.
+
+#### Runtime
+
+An interface is a shared boundary that contains no data or code. An implementation is code or data that declares support for an interface. To create an interface, create a class with a default virtual destructor and pure virtual methods, e.g.:
+
+```cpp
+class SomeInterface {
+	virtual ~SomeInterface() = default;
+	virtual void someMethod() = 0;
+};
+```
+
+Note: You can only deal with pointers or references to interfaces. There are two ways to set member variables (that are actually interfaces):
+
+* **constructor injection** - use an interface reference (as references cannot be reseated, they won't change for the lifetime of the object)
+
+* **property injection** - use a method to set a pointer member (allows to change the object to which the member points)
+
+#### Compile-time
+
+Declare templates with a template prefix, which consists of the keyword `template` followed by angle brackets `< >`. You can define class with template:
+
+```cpp
+template <typename T, typename U>
+class SomeClass {
+	/* use T and U as types here */
+};
+```
+
+Note: Instantiate the above class by using, e.g.:
+
+```cpp
+SomeClass<int, float> someClass;
+```
+
+You can also define functions with template:
+
+```cpp
+template <typename T, typename U>
+T someFunction (U arg) {
+	/* function body */
+}
+```
+
 ### Future / promise
 
-This is equivalent to conditional variable wait (consumer) and signal (producer), respectively.
-
+This is equivalent to conditional variable wait (consumer) and signal (producer), respectively. See examples for use with `std::async` and `std::thread`.
 
