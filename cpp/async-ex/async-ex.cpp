@@ -89,6 +89,11 @@ int main(int argc, char* argv[]) {
 
 		return 3;
 	}
+	catch (...) {
+		std::cout << "Error: Unforeseen consequences." << std::endl;
+
+		return 4;
+	}
 
 	return 0;
 }

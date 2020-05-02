@@ -59,7 +59,7 @@ There are three types of storage duration:
 
 * **dynamic** - allocated and deallocated on request (with `new` and `delete` keywords)
 
-## Values
+## Value categories
 
 ### `lvalue`
 
@@ -135,7 +135,11 @@ void func(int&& arg) {
 }
 ```
 
-Latter function definition is useful as an optimization hack, and is usually paired up with the former definition, as an overloaded function.
+Note: Latter function definition is useful as an optimization hack, and is usually paired up with the former definition, as an overloaded function.
+
+### Casting
+
+You can cast an `lvalue` to an `rvalue` by using `std::move` (include `utility`). You can perform only two actions on moved-from object (the `lvalue` we casted from): reassign it or destroy it.
 
 ## Keywords and identifiers
 
@@ -195,6 +199,88 @@ try {
 }
 ```
 
+## Constructors
+
+### List of initializers
+
+You can use the following semantics to initialize variables in a constructor:
+
+```cpp
+class Point {
+	Point(int x, int y): x{ this->x }, y{ this->y } { };
+
+	int x;
+	int y;
+};
+```
+
+### Copy
+
+The copy constructor creates a copy of an object and assigns it to a brand-new object. It is invoked when passing the object to function by value, or by calling the copy constructor explicitely:
+
+```cpp
+SomeObject someObjectOriginal;
+SomeObject someObjectCopy { someObjectOriginal };
+```
+
+The usual way to define a copy constructor is:
+
+```cpp
+class SomeObject {
+	SomeObject(const SomeObject& other);
+};
+```
+
+Note: In this constructor, you should copy all member variables, etc. This can be mostly accomplished by using list of initializers.
+
+Note: You can also overload the `=` operator as in the following:
+
+```cpp
+class SomeObject {
+	SomeObject& operator=(const SomeObject& other) {
+
+		if (this == &other) return *this;
+
+		/* copy member variables here */
+
+		return *this;
+	}
+};
+```
+
+Note: The default copy constructor will just invoke copy constructors on all member elements. This behaviour can be suppressed with the use of `delete` keyword:
+
+```cpp
+class SomeObject {
+	SomeObject(const SomeObject& other) = delete;
+	SomeObject& operator=(const SomeObject& other) = delete;
+};
+```
+
+#### Copy guidelines
+
+* **correctness** - ensure that class invariants are maintained
+* **independence** - the original and the copy shouldn't alter each other's state
+* **equivalence** - the original and the copy should be equal
+
+### Move
+
+The move constructor syntax is similar to the copy constructor, except the fact that `rvalue` references are used instead of `lvalue`:
+
+```cpp
+class SomeObject {
+	SomeObject(SomeObject&& other) noexcept;
+
+	SomeObject& operator=(SomeObject&& other) noexcept {
+		if (this = &other) return *this;
+
+		/* assign member variables */
+
+		return *this;
+	}
+};
+```
+
 ## Patterns
 
 ### Initialization
@@ -209,7 +295,7 @@ int z[] { 1, 2, 3 };
 
 Note: `x` will be initialized to `0`.
 
-### Structured binding declaration
+### Structured binding declaration (C++17)
 
 You can do primitive pattern matching, e.g. in error handling by using `return { data, success }` in a function (here: `function()`), and then retrieveng it with `auto [ data, success ] = function();`.
 
