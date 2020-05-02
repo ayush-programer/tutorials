@@ -47,11 +47,11 @@ namespace AsyncEx {
 
 	static void preProduce(const int count, const int seconds) {
 
-		if (count == 0)
+		if (count <= 0)
 			throw std::invalid_argument("Please provide numeric "
 						    "argument greater than zero.");
 
-		if (seconds == 0)
+		if (seconds <= 0)
 			throw std::invalid_argument("Seconds should be an integer "
 						    "greater than zero.");
 
