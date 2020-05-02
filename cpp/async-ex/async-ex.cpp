@@ -7,10 +7,10 @@
 
 namespace AsyncEx {
 
-	static int test {};
-	std::mutex mutex;
-
 	static int produce(const int seconds) {
+		static int test {};
+		static std::mutex mutex;
+
 		std::this_thread::sleep_for(std::chrono::seconds(seconds));
 		std::lock_guard<std::mutex> guard(mutex);
 
@@ -20,20 +20,22 @@ namespace AsyncEx {
 	static void preProduceRaw(const int count, const int seconds) {
 		std::vector<std::future<int>> preFutures;
 		bool hashTable[count] { false };
-		auto begin { std::chrono::steady_clock::now() };
 		std::mutex hash_mutex;
+		auto begin { std::chrono::steady_clock::now() };
 
-		for (size_t i = 0; i < count; i++) {
+		for (size_t i = 0; i < count; i++)
 			preFutures.push_back(std::async(std::launch::async,
 					     AsyncEx::produce, seconds));
-		}
 
 		for (auto& preFuture: preFutures) {
 			auto el = preFuture.get();
 
+			/* check returned element consistency */
 			std::lock_guard<std::mutex> guard_lock(hash_mutex);
+
 			if (hashTable[el])
 				throw std::logic_error("Hash collision!");
+
 			hashTable[el] = true;
 		}
 
@@ -73,15 +75,18 @@ int main(int argc, char* argv[]) {
 	catch (const std::invalid_argument &ex) {
 		std::cout << "Error: ";
 		std::cout << ex.what() << std::endl;
+
 		return 1;
 	}
 	catch (const std::logic_error &ex) {
 		std::cout << ex.what() << std::endl;
+
 		return 2;
 	}
 	catch (const std::exception &ex) {
 		std::cout << "Error: ";
 		std::cout << ex.what() << std::endl;
+
 		return 3;
 	}
 
