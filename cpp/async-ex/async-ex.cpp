@@ -10,22 +10,14 @@ namespace AsyncEx {
 	static int test {};
 	std::mutex mutex;
 
-	static int produce() {
-
-		std::this_thread::sleep_for(std::chrono::seconds(2));
+	static int produce(const int seconds) {
+		std::this_thread::sleep_for(std::chrono::seconds(seconds));
 		std::lock_guard<std::mutex> guard(mutex);
 
 		return test++;
 	};
 
-	static void throw_arg_error() {
-
-		throw std::invalid_argument("No numeric value provided. "
-					    "Skipping pre-produce...");
-	}
-
-	static void preProduceRaw(int count) {
-
+	static void preProduceRaw(const int count, const int seconds) {
 		std::vector<std::future<int>> preFutures;
 		bool hashTable[count] { false };
 		auto begin { std::chrono::steady_clock::now() };
@@ -33,7 +25,7 @@ namespace AsyncEx {
 
 		for (size_t i = 0; i < count; i++) {
 			preFutures.push_back(std::async(std::launch::async,
-					     AsyncEx::produce));
+					     AsyncEx::produce, seconds));
 		}
 
 		for (auto& preFuture: preFutures) {
@@ -45,45 +37,52 @@ namespace AsyncEx {
 			hashTable[el] = true;
 		}
 
-		std::cout << "Pre-produced " << count << " in: " << std::chrono::duration <double, std::ratio<1, 1>> (std::chrono::steady_clock::now() - begin).count() << "s" << std::endl;
+		std::cout << "Produced " << count << " in: "
+			  << std::chrono::duration <double, std::ratio<1, 1>>
+			    (std::chrono::steady_clock::now() - begin).count()
+			  << "s" << std::endl;
 	}
 
-	static void preProduce(int count) {
+	static void preProduce(const int count, const int seconds) {
 
 		if (count == 0)
-			throw_arg_error();
+			throw std::invalid_argument("Please provide numeric "
+						    "argument greater than zero.");
 
-		std::cout << "Pre-producing..." << std::endl;
+		if (seconds == 0)
+			throw std::invalid_argument("Seconds should be an integer "
+						    "greater than zero.");
 
-		preProduceRaw(count);
+		std::cout << "Producing... ";
+		std::cout << "Press CTR+C to stop any time..." << std::endl;
+
+		preProduceRaw(count, seconds);
 	}
 };
 
 int main(int argc, char* argv[]) {
 
-	std::future<int> res {};
-
-	std::cout << "Press CTR+C to stop any time..." << std::endl;
-
 	try {
-		if (argc != 2)
-			AsyncEx::throw_arg_error();
+		if (argc == 1)
+			throw std::invalid_argument("No numeric value provided.");
 
-		AsyncEx::preProduce(std::stoi(argv[1]));
+		AsyncEx::preProduce(std::stoi(argv[1]),
+				    argc == 3 ? std::stoi(argv[2]) : 2);
 
+	}
+	catch (const std::invalid_argument &ex) {
+		std::cout << "Error: ";
+		std::cout << ex.what() << std::endl;
+		return 1;
 	}
 	catch (const std::logic_error &ex) {
 		std::cout << ex.what() << std::endl;
+		return 2;
 	}
 	catch (const std::exception &ex) {
 		std::cout << "Error: ";
 		std::cout << ex.what() << std::endl;
-	}
-
-	while(true) {
-		res = std::async(std::launch::async, AsyncEx::produce);
-
-		std::cout << "Got: " << res.get() << std::endl;
+		return 3;
 	}
 
 	return 0;
