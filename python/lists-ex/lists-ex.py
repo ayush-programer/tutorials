@@ -5,6 +5,12 @@ empty_list = []
 print(empty_list)
 # []
 
+if empty_list:
+    print("List is not empty")
+else:
+    print("List is empty")
+# List is empty
+
 fruit = ["banana", "pineapple", "apple", "cherry"]
 
 print(fruit)
@@ -139,3 +145,11 @@ print(triple_even_numbers)
 
 print(", ".join(["a", "b", "c"]))
 # a, b, c
+
+some_names = [ "John", "Jim", "James", "Jim", "Jim", "Jerry" ]
+
+while "Jim" in some_names:
+    some_names.remove("Jim")
+
+print(some_names)
+# ['John', 'James', 'Jerry']
