@@ -136,3 +136,6 @@ print(triple_even_numbers_copy)
 
 print(triple_even_numbers)
 # [3, 9, 15, 21]
+
+print(", ".join(["a", "b", "c"]))
+# a, b, c

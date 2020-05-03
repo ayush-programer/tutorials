@@ -6,3 +6,6 @@
 *.order
 *.mk
 *.sw*
+
+cpp/async-ex/async-ex
+cpp/promise-ex/promise-ex
