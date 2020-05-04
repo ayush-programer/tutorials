@@ -5,6 +5,9 @@ empty_list = []
 print(empty_list)
 # []
 
+print([True, 1, "Test", 1.5])
+# [True, 1, 'Test', 1.5]
+
 if empty_list:
     print("List is not empty")
 else:
@@ -153,3 +156,8 @@ while "Jim" in some_names:
 
 print(some_names)
 # ['John', 'James', 'Jerry']
+
+some_names.extend(['John', 'Jacob', 'Joseph'])
+print(some_names)
+# ['John', 'James', 'Jerry', 'John', 'Jacob', 'Joseph']
+

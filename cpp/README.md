@@ -173,6 +173,50 @@ If you want to override a virtual method, then, within the implementation, add t
 
 If you want to permit a derived class to override a base class's methods, you use the `virtual` keyword. If you want to require a derived class to implement the method, you can append the `=0` suffix to a method definition (such methods are called pure virtual methods);
 
+## Casting
+
+Named conversions are language features that explicitly convert one type into another type. The C++ syntax for casting is:
+
+```
+named-conversion<desired_type>(object)
+```
+
+### `const_cast` 
+
+The `const_cast` discards the `const` modifier, allowing the modification of `const` values. You can also use `const_cast` to remove the `volatile` modifier.
+
+### `static_cast`
+
+The `static_cast` reverses a well-defined implicit conversion, such as an integer type to another integer type. One use-case is from `void*` to `short*`:
+
+```cpp
+void* some_pointer;
+auto short_pointer = static_cast<short*>(some_pointer);
+```
+
+### `reinterpret_cast`
+
+The `reinterpret_cast` allows converting from memory adresses to specific types; it does not ensure correctness, however.
+
+```cpp
+auto long_pointer = reinterpret_cast<long*>(0x1000)
+```
+
+### `narrow_cast`
+
+It is very easy to implement `narrow_cast` which throws a runtime exception if data loss during `static_cast` is detected:
+
+```cpp
+template <typename T, typename U>
+T narrow_cast(U value) {
+	const auto converted = static_cast<T>(value);
+	const auto reverse = static_cast<U>(converted);
+	if (value != reverse)
+		throw std::runtime_error{ "Narrowing detected.");
+	return converted;
+}
+```
+
 ## Exception handling
 
 ### Standard exception classes
@@ -289,7 +333,11 @@ class SomeObject {
 };
 ```
 
+### Notes
+
 Note: Depending on what you define: destructor, copy constructor, move assignment, move constructor or move assignment, compiler will generate some (according to some rules). This is however discouraged, and any modifications to these semantics should explicitely define constructors / destructors along with `delete` on the ones not intended for use. 
+
+Note: You need `default` keyword if you want both a default constructor and a non-default constructor.
 
 ## Patterns
 
@@ -355,6 +403,44 @@ T someFunction (U arg) {
 	/* function body */
 }
 ```
+
+Note: You can use non-type template parameters as stand-ins for some yet-to-be-specified value. They can be:
+
+* an integral type
+* an lvalue reference type
+* a pointer type
+* a `std::nullptr_t` (type of `nullptr`)
+* an `enum class`
+
+Example for a template class accepting arrays of specific size:
+
+```cpp
+template <typename T, size_t arr_size, size_t index>
+T& get (T(&arr)[arr_size]) {
+	if (index >= arr_size)
+		throw std::out_of_range{ "Out of bounds" };
+	return arr[index];
+}
+```
+
+Note: You can also use *variadic_templates*:
+
+```cpp
+template <typename T, typename... Arguments>
+T test(Arguments ... arguments) {
+	/* some code */
+}
+```
+
+##### Concepts
+
+Concepts won't be available until C++20, so `static_assert` is a compile-time evaluation alternative in C++17. The syntax is:
+
+```cpp
+static_assert(boolean-expression, optional-message);
+```
+
+You can find type traits to use as `boolean-expression` [here](https://en.cppreference.com/w/cpp/types#Type_traits).
 
 ### Future / promise
 
