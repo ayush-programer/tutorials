@@ -1,5 +1,23 @@
 # Python3 Fuction Examples
 
+import module_ex
+
+module_ex.greet_from_module()
+# Hello from module!
+
+from module_ex2 import add_numbers
+
+print(add_numbers(5, 6))
+# 11
+
+from module_ex2 import another_greeting as greet
+
+greet()
+# Hello from another module!
+
+# Note: To import all functions from a module
+# use e.g. from module_ex import *
+
 def hello(user="root", age=100):
     hello_string = "Hello, " + user
     hello_string += "! I hear your age is " + str(age) + "."
