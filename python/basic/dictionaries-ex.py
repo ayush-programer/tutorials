@@ -59,3 +59,25 @@ else:
 
 # Note: It is possible to store lists and
 # dictionaries in dictionaries (and vice versa).
+
+from collections import OrderedDict
+
+numbers_dict = OrderedDict()
+
+numbers_dict["One"] = 1
+numbers_dict["Two"] = 2
+numbers_dict["Three"] = 3
+numbers_dict["Zero"] = 0
+
+print(
+        "OrderedDict keeps order of items as "
+        "they were added:"
+        )
+
+for number in numbers_dict.keys():
+    print("\t* " + number + ": " + str(numbers_dict[number]))
+# OrderedDict keeps order of items as they were added:
+#	* One: 1
+#	* Two: 2
+#	* Three: 3
+#       * Zero: 0
