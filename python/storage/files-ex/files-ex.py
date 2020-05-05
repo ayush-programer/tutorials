@@ -51,8 +51,8 @@ try:
         crew = crew_file.readlines()
 
 except FileNotFoundError:
-
     print("Oh no, could not find crew.txt!")
+
 else:
     for crew_number in range(0, len(crew)):
         crew[crew_number] = crew[crew_number].rstrip()

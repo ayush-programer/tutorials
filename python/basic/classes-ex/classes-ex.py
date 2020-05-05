@@ -21,20 +21,25 @@ class Starship():
 # object in parentheses, e.g.:
 # class Starship(object)
 
-enterprise = Starship("Enterprise", Captain("Jean-Luc", "Picard"))
+if __name__ == "__main__":
 
-print(
-        "Created " + enterprise.name +
-        " and assigned it to " + enterprise.captain.get_name() + "."
-        )
-# Created Enterprise and assigned it to Jean-Luc Picard.
+    # Note: Code inside the block will only be executed
+    # if the module is run directly, not if it is imported
 
-if enterprise.stardate == 0:
-    print("Strange stardate found.")
-# Strange stardate found.
+    enterprise = Starship("Enterprise", Captain("Jean-Luc", "Picard"))
 
-enterprise.engage()
-# Warp 9, engage!
+    print(
+            "Created " + enterprise.name +
+            " and assigned it to " + enterprise.captain.get_name() + "."
+            )
+    # Created Enterprise and assigned it to Jean-Luc Picard.
+
+    if enterprise.stardate == 0:
+        print("Strange stardate found.")
+    # Strange stardate found.
+
+    enterprise.engage()
+    # Warp 9, engage!
 
 class KlingonStarship(Starship):
     """Specialized Klingon Starship class."""
@@ -61,25 +66,27 @@ class KlingonStarship(Starship):
     def raise_shields(self):
         print("Klingon shields raised.")
 
-klingon_ship = KlingonStarship(Captain(name="Worf"))
+if __name__ == "__main__":
 
-print(
-        "Created Klingon Starship " + klingon_ship.name +
-        " with captain " + klingon_ship.captain.get_name() + "."
-        )
-# Created Klingon Starship Unknown with captain Worf.
+    klingon_ship = KlingonStarship(Captain(name="Worf"))
 
-klingon_ship.fire()
-# Stardate 0: Firing all lasers!
+    print(
+            "Created Klingon Starship " + klingon_ship.name +
+            " with captain " + klingon_ship.captain.get_name() + "."
+            )
+    # Created Klingon Starship Unknown with captain Worf.
 
-klingon_ship.stardate = 9000
-klingon_ship.lasers = False
+    klingon_ship.fire()
+    # Stardate 0: Firing all lasers!
 
-klingon_ship.fire()
-# Stardate 9000: We can't fire lasers.
+    klingon_ship.stardate = 9000
+    klingon_ship.lasers = False
 
-enterprise.raise_shields()
-# Raising shields.
+    klingon_ship.fire()
+    # Stardate 9000: We can't fire lasers.
 
-klingon_ship.raise_shields()
-# Klingon shields raised.
+    enterprise.raise_shields()
+    # Raising shields.
+
+    klingon_ship.raise_shields()
+    # Klingon shields raised.

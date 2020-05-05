@@ -9,6 +9,6 @@ class Captain():
 
     def get_name(self):
         name_string = self.name
-        if hasattr(Captain, "surname"):
+        if hasattr(self, "surname"):
             name_string += " " + self.surname
         return name_string
