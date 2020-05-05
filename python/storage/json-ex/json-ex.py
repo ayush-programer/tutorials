@@ -57,14 +57,27 @@ print(json_data_reloaded)
 starship_list_reloaded = []
 
 for starship in json.loads(json_data_reloaded):
-    captain = Captain(starship["captain"]["name"])
-    if "surname" in starship["captain"].keys():
-        captain.surname = starship["captain"]["surname"]
-    starship_list_reloaded.append(Starship(starship["name"], captain))
+
+    starship_list_reloaded.append(
+
+        Starship(
+            starship["name"],
+            Captain(
+                starship["captain"]["name"],
+                starship["captain"]["surname"]
+                    if "surname" in starship["captain"].keys()
+                    else ""
+                )
+            )
+        )
 
 print("Starship list:")
 for starship in starship_list_reloaded:
-    print("\t* " + starship.name + "\t(captain: " + starship.captain.get_name() + ")")
+    print(
+            "\t* " + starship.name +
+            "\t(captain: " + starship.captain.get_name() +
+            ")"
+        )
 # Starship list:
 # 	* Enterprise	(captain: Jean-Luc Picard)
 # 	* Voyager	(captain: Kathryn Janeway)

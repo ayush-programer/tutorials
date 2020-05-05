@@ -79,6 +79,14 @@ for animal in animals:
 #       * dog
 #       * cat
 
+print("Enumerated animal list:")
+for index, animal in enumerate(animals, start=1):
+    print("\t" + str(index) + ". " + animal)
+# Enumerated animal list:
+#       1. mouse
+#       2. dog
+#       3. cat
+
 print(list(range(1, 5)))
 # [1, 2, 3, 4]
 
