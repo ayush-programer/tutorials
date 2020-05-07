@@ -74,9 +74,7 @@ for starship in json.loads(json_data_reloaded):
 print("Starship list:")
 for starship in starship_list_reloaded:
     print(
-            "\t* " + starship.name +
-            "\t(captain: " + starship.captain.get_name() +
-            ")"
+            "\t* {}\t{}".format(starship.name, starship.captain.get_name())
         )
 # Starship list:
 # 	* Enterprise	(captain: Jean-Luc Picard)

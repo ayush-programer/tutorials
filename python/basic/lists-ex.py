@@ -169,3 +169,17 @@ some_names.extend(['John', 'Jacob', 'Joseph'])
 print(some_names)
 # ['John', 'James', 'Jerry', 'John', 'Jacob', 'Joseph']
 
+x = [1, 2, 3]
+y = x       # pass by reference
+x.append(4)
+print(x)
+print(y)
+# [1, 2, 3, 4]
+# [1, 2, 3, 4]
+
+z = x[:]    # copy / pass by value
+x.append(5)
+print(x)
+print(z)
+# [1, 2, 3, 4, 5]
+# [1, 2, 3, 4]

@@ -90,3 +90,44 @@ if __name__ == "__main__":
 
     klingon_ship.raise_shields()
     # Klingon shields raised.
+
+    klingon_ship_copy = klingon_ship
+    klingon_ship_copy.stardate = 0
+    klingon_ship.fire()
+    # Stardate 0: We can't fire lasers.
+
+    # Note: Both klingon_ship_copy and klingon_ship
+    # point to the same object
+
+    import copy
+
+    klingon_ship_shallow_copy = copy.copy(klingon_ship)
+    klingon_ship_shallow_copy.stardate = 5000
+    klingon_ship.fire()
+    # Stardate 0: We can't fire lasers.
+
+    # <-- shallow copy -->
+
+    klingon_array = [ klingon_ship ]
+
+    klingon_array_copy = klingon_array[:]
+    klingon_array_copy[0].stardate = 5000
+    klingon_ship.fire()
+    # Stardate 5000: We can't fire lasers.
+
+    klingon_array_shallow_copy = copy.copy(klingon_array)
+    klingon_array_shallow_copy[0].stardate = 9000
+    klingon_ship.fire()
+    # Stardate 9000: We can't fire lasers.
+
+    # <-- deep copy -->
+
+    klingon_array_deep_copy = copy.deepcopy(klingon_array)
+    klingon_array_deep_copy[0].stardate = 5000
+    klingon_ship.fire()
+    # Stardate 9000: We can't fire lasers.
+
+    # Note: Shallow copy (copy.copy()) copies the object,
+    # but it is deep copy (copy.deepcopy()) that copies
+    # the object recursively. Note that shallow copy with
+    # regard to lists is the same as array1 = array2[:]
