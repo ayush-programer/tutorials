@@ -59,8 +59,15 @@ else:
 
     print("Once more:")
     print(crew)
+
+finally:
+    print("File either opened or failed.")
 # Once more:
 # ['Picard', 'Riker', 'Data', 'Geordi', 'Worf', 'Wesley', 'Beverly', 'Deanna']
+# File either opened or failed.
+
+# Note: Block under 'finally' will run after try
+# finishes whether there was an exception or not
 
 with open("werc.txt", "w") as werc_file:
     for crew_member in crew:

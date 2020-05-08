@@ -73,3 +73,17 @@ def append_elements_to_list(list, *elements):
 append_elements_to_list(test_list, 4, 5, 6)
 print(test_list)
 # [1, 2, 3, 4, 5, 6]
+
+# function decorator syntax
+
+def append_element_to_list_f(f):
+    def wrapper(list, el):
+        list.append(f(el))
+        return list
+    return wrapper
+
+@append_element_to_list_f
+def append_squared(el):
+    return el * el
+
+print(append_squared([1,2,3], 5))

@@ -27,7 +27,7 @@ class Card():
 class RabuRettaRound():
     """Rabu Retta round class"""
 
-    # static variable
+    # static / class variable
     card_pool = [
             Card("Princess", 8),
             Card("Countess", 7),
@@ -54,6 +54,12 @@ class RabuRettaRound():
         if players == 2:
             for _ in range(0, 3):
                 self.faceup.append(self.remove_card(randint(0, len(self) - 1)))
+
+    @staticmethod
+    def print_info():
+        """static method to print info"""
+
+        print("Rabu Retta is a great game!")
 
     def __len__(self):
         """for len(RabuRettaRound())"""
@@ -112,6 +118,11 @@ class RabuRettaRound():
 
 class RabuRettaRoundTests(unittest.TestCase):
 
+    def test_type(self):
+        """Test if type is RabuRettaRound"""
+
+        self.assertEqual(type(RabuRettaRound()), RabuRettaRound)
+
     def test_players(self):
         """Test exception raising on invalid number of players"""
 
@@ -154,5 +165,6 @@ class RabuRettaRoundTests(unittest.TestCase):
                     except IndexError:
                         self.fail("Index should not be out of bounds.")
 
+RabuRettaRound.print_info()
 
 unittest.main()

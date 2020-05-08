@@ -11,6 +11,14 @@ class Starship():
         self.captain = captain
         self.stardate = 0
 
+    @staticmethod
+    def createStarshipUFO():
+        return Starship(name="X", captain="Y")
+
+    @classmethod
+    def createUFO(cls):
+        return cls(name="X", captain="Y")
+
     def engage(self, warp=9):
         print("Warp " + str(warp) + ", engage!")
 
@@ -44,8 +52,8 @@ if __name__ == "__main__":
 class KlingonStarship(Starship):
     """Specialized Klingon Starship class."""
 
-    def __init__(self, captain):
-        super().__init__("Unknown", captain)
+    def __init__(self, captain, name="Unknown"):
+        super().__init__(name, captain)
         self.lasers = True
 
 # Note: In Python2, this would have to be:
@@ -90,6 +98,27 @@ if __name__ == "__main__":
 
     klingon_ship.raise_shields()
     # Klingon shields raised.
+
+    # <-- classmethod factory -->
+
+    ss = Starship.createUFO()
+    print(("is Klingon" if isinstance(ss, KlingonStarship) else "is not Klingon")
+            + " with " + ss.name + " name and " + ss.captain + " captain")
+    # is not Klingon with X name and Y captain
+
+    kss = KlingonStarship.createUFO()
+    print(("is Klingon" if isinstance(kss, KlingonStarship) else "is not Klingon")
+            + " with " + kss.name + " name and " + kss.captain + " captain")
+    # is Klingon with X name and Y captain
+
+    # <-- staticmethod factory -->
+
+    kss = KlingonStarship.createStarshipUFO()
+    print(("is Klingon" if isinstance(kss, KlingonStarship) else "is not Klingon")
+            + " with " + kss.name + " name and " + kss.captain + " captain")
+    # is not Klingon with X name and Y captain
+
+    # <-- copying objects -->
 
     klingon_ship_copy = klingon_ship
     klingon_ship_copy.stardate = 0
