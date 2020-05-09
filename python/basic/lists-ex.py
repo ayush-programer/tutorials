@@ -111,7 +111,7 @@ print(max(odd_numbers))
 print(sum(odd_numbers))
 # 75
 
-# list comprehension
+# <-- list comprehension -->
 
 triple_even_numbers = [3 * value for value in range(1,11,2)]
 print(triple_even_numbers)
@@ -183,3 +183,4 @@ print(x)
 print(z)
 # [1, 2, 3, 4, 5]
 # [1, 2, 3, 4]
+
