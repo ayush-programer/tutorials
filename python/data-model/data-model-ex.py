@@ -69,41 +69,45 @@ class RabuRettaRound():
             sum += card.count
         return sum
 
-    def __getitem__(self, position):
+    def __getitem__(self, index):
         """for RabuRettaRound()[index]"""
 
         length = len(self)
 
-        if 0 > position or position >= length:
+        position = index if index >= 0 else length + index
+
+        if position >= length:
             raise IndexError
 
         current = 0
 
         for card in self.deck:
 
-            if position >= current and position <= current + card.count:
+            if position >= current and position < current + card.count:
                 return card
 
             current += card.count
 
         raise IndexError
 
-    def remove_card(self, to_remove):
+    def remove_card(self, index):
         """remove card from the deck method"""
 
         length = len(self)
 
-        if 0 > to_remove or to_remove >= length:
+        to_remove = index if index >= 0 else length + index
+
+        if to_remove >= length:
             raise IndexError
 
         current = 0
 
-        for index, card in enumerate(self.deck, start=0):
+        for card_index, card in enumerate(self.deck, start=0):
 
-            if to_remove >= current and to_remove <= current + card.count:
+            if to_remove >= current and to_remove < current + card.count:
 
                 if card.count == 1:
-                    return self.deck.pop(index)
+                    return self.deck.pop(card_index)
                 elif card.count > 1:
                     card.count -= 1
                     return card
@@ -148,22 +152,76 @@ class RabuRettaRoundTests(unittest.TestCase):
         for num in range(2,5):
             rrr = RabuRettaRound(num)
             rrr_length = len(rrr)
+            card = None
+            card_hash = {}
 
-            for index in range(-3, rrr_length + 3):
+            for index in range(-3 - rrr_length, rrr_length + 3):
 
-                if index >= rrr_length or index < 0:
+                if ((index >= rrr_length and index >= 0) or
+                    (-index > rrr_length and index <= 0)):
+
                     with self.assertRaises(IndexError):
                         rrr[index]
+
                     # Note: self.assertRaises(IndexError, rrr[index])
                     # won't work because rrr[index] will raise IndexError
                     # before self.assertRaises gets called; another
                     # solution would be to make rrr[index] a method, e.g.:
                     # self.assertRaises(IndexError, lambda: rrr[index])
+
                 else:
                     try:
-                        _ = rrr[index]
+                        card = rrr[index]
+
                     except IndexError:
-                        self.fail("Index should not be out of bounds.")
+                        self.fail(
+                                "Index " + str(index) + " should not be " +
+                                " out of bounds (length: " + str(rrr_length) + ")."
+                                )
+
+            for index in range(0, rrr_length):
+
+                try:
+                    card = rrr[index]
+                    card_hash[card.name] += 1
+
+                except KeyError:
+                    card_hash[card.name] = 1
+
+                except IndexError:
+                    self.fail("Index out of bounds!")
+
+            try:
+                for card in rrr.deck:
+                    self.assertEqual(card_hash[card.name], card.count)
+
+            except KeyError:
+                self.fail(card.name + " not hashed!")
+
+    def test_iter(self):
+        """Test iter and last"""
+
+        for num in range(2, 5):
+
+            rrr = RabuRettaRound(num)
+            rrr_iter = iter(rrr)
+
+            # Note: __getitem__ and __len__ are enough
+            # to provide for __iter__
+
+            rrr_length = len(rrr)
+            item = None
+            counter = 0
+
+            while True:
+                try:
+                    item = next(rrr_iter)
+                    self.assertTrue(counter < rrr_length)
+                    counter += 1
+
+                except StopIteration:
+                    self.assertEqual(item, rrr[-1])
+                    break
 
 RabuRettaRound.print_info()
 
