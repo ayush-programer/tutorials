@@ -2,7 +2,6 @@
 
 from random import randint
 import copy
-import unittest
 
 class Card():
     """Rabu Retta card class"""
@@ -15,14 +14,16 @@ class Card():
         self.count = count
 
     def __repr__(self):
-        """for print()"""
 
-        return self.name + " (" + str(self.count) + ")"
+        return "Card(%s, %s, %s)" % (self.name, self.value, self.count)
 
     def __str__(self):
-        """for str()"""
 
-        return self.__repr__()
+        return "%s (%d)" % (self.name, self.value)
+
+# Note: str() is used to create output for end-user,
+# while repr() is used for debugging purposes, i.e.
+# for official representation of the object
 
 class RabuRettaRound():
     """Rabu Retta round class"""
@@ -47,13 +48,19 @@ class RabuRettaRound():
         if players > 4 or players < 0:
             raise Exception("Invalid number of players (2-4)")
 
+        self.length_hash = -1
+        self.players = players
         self.deck = copy.deepcopy(RabuRettaRound.card_pool)
-        self.facedown = self.remove_card(randint(0, len(self) - 1))
+        to_remove = randint(0, len(self) - 1)
+
+        self.facedown = []
         self.faceup = []
+
+        self.facedown.append(self.pop(to_remove))
 
         if players == 2:
             for _ in range(0, 3):
-                self.faceup.append(self.remove_card(randint(0, len(self) - 1)))
+                self.faceup.append(self.pop(randint(0, len(self) - 1)))
 
     @staticmethod
     def print_info():
@@ -63,6 +70,9 @@ class RabuRettaRound():
 
     def __len__(self):
         """for len(RabuRettaRound())"""
+
+        if self.length_hash > -1:
+            return self.length_hash
 
         sum = 0
         for card in self.deck:
@@ -90,8 +100,20 @@ class RabuRettaRound():
 
         raise IndexError
 
-    def remove_card(self, index):
-        """remove card from the deck method"""
+    def pop(self, index=-1):
+        """implement pop() method"""
+
+        to_remove = self[index]
+        del self[index]
+
+        return to_remove
+
+    def get_card(self):
+
+        return self.pop(randint(0, len(self) - 1))
+
+    def __delitem__(self, index):
+        """remove card from the deck (del implementation)"""
 
         length = len(self)
 
@@ -107,18 +129,45 @@ class RabuRettaRound():
             if to_remove >= current and to_remove < current + card.count:
 
                 if card.count == 1:
-                    return self.deck.pop(card_index)
+                    to_return = self.deck.pop(card_index)
+                    self.length_hash -= 1
+                    return to_return
+
                 elif card.count > 1:
                     card.count -= 1
+                    self.length_hash -= 1
+
                     return card
                 else:
                     raise IndexError
 
             current += card.count
 
+    def __repr__(self):
+
+        return str(list(map(lambda card: repr(card), self.deck)))
+
+    def __str__(self):
+
+        display_string = "RabuRetta round for %d players." % self.players
+
+        if self.faceup:
+            display_string += (
+                    "\nFaceup cards:\n\t" +
+                    str(list(map(lambda card: str(card), self.faceup)))
+                    )
+        if self.facedown:
+            display_string += (
+                    "\nNumber of facedown cards: %d" % len(self.facedown)
+                    )
+
+        return display_string
+
     def __del__(self):
         """Called when garbage collector calls destructor"""
         RabuRettaRound.rounds_played += 1
+
+import unittest
 
 class RabuRettaRoundTests(unittest.TestCase):
 
@@ -223,6 +272,25 @@ class RabuRettaRoundTests(unittest.TestCase):
                     self.assertEqual(item, rrr[-1])
                     break
 
-RabuRettaRound.print_info()
+if __name__ == "__main__":
 
-unittest.main()
+    import sys
+
+    if len(sys.argv) >= 2:
+        if sys.argv[1] == "test":
+            unittest.main(argv=['first-arg-is-ignored'], exit=False)
+            # Note: The unittest should be in a separate file,
+            # so we need to hack this a bit...
+
+        elif sys.argv[1] == "info":
+            RabuRettaRound.print_info()
+
+        else:
+            print(
+                    "Use 'test' option to run unit tests "
+                    "and 'info' to get information on RabuRetta"
+                    )
+    else:
+        rrr = RabuRettaRound(2)
+        print(rrr)
+        print("You got the card from the deck:\n\t" + str(rrr.get_card()))
