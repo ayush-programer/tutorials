@@ -48,10 +48,30 @@ For general system info, use `uname -a`.
 It is possible to pass `argument` as argument to command `command` using `xargs`:
 
 ```shell
-argument | xargs -I{} command {}
+argument | xargs -I {} command {}
 ```
 
 The `{}` is a placeholder for the pipe input.
+
+Note: To do a command for each line of input, you need to specify this with `-L` switch. Take a look at this example:
+
+```shell
+$ pgrep ksoft | xargs ps -o comm,cls,pri,pcpu,psr
+COMMAND         CLS PRI %CPU PSR
+ksoftirqd/0      TS  19  0.0   0
+ksoftirqd/1      TS  19  0.0   1
+ksoftirqd/2      TS  19  0.0   2
+ksoftirqd/3      TS  19  0.0   3
+$ pgrep ksoft | xargs -L 1 ps -o comm,cls,pri,pcpu,psr
+COMMAND         CLS PRI %CPU PSR
+ksoftirqd/0      TS  19  0.0   0
+COMMAND         CLS PRI %CPU PSR
+ksoftirqd/1      TS  19  0.0   1
+COMMAND         CLS PRI %CPU PSR
+ksoftirqd/2      TS  19  0.0   2
+COMMAND         CLS PRI %CPU PSR
+ksoftirqd/3      TS  19  0.0   3
+```
 
 ## Error codes
 
@@ -199,6 +219,24 @@ You can test if a variable conforms to a regex by using:
 
 ```awk
 if(var ~ /<regex>/) { ... }
+```
+
+### Whitespace
+
+You can use awk to trim leading and trailing whitespace:
+
+```shell
+$ echo "  test " | awk '{$1=$1;print}'
+test
+```
+
+### Numeric operations
+
+Standard arithmetic is supported in awk. One of the differences from `C` is the bitshift operation:
+
+```shell
+$ echo 3 | awk '{ print lshift(1,$1) }'
+8
 ```
 
 ### Example 1

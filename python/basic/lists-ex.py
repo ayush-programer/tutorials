@@ -62,6 +62,9 @@ vegetables.sort()
 print(vegetables)
 # ['cucumber', 'spinach', 'tomato']
 
+vegetables.expand(['broccoli', 'cabbage'])
+# ['cucumber, 'spinach', 'tomato', 'broccoli', 'cabbage']
+
 animals = ['dog', 'cat', 'mouse']
 
 animals.sort(reverse=True)
@@ -117,7 +120,7 @@ triple_even_numbers = [3 * value for value in range(1,11,2)]
 print(triple_even_numbers)
 # [3, 9, 15, 21, 27]
 
-# slicing a list
+# <-- slicing a list -->
 
 print(triple_even_numbers[1:4])
 # [9, 15, 21]

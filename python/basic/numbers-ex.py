@@ -52,3 +52,7 @@ print(int('377', 8))
 
 print(oct(255))
 # 0o377
+
+# sum(iterable, start_value)
+print(sum([3, 4], 10))
+# 17
