@@ -137,6 +137,12 @@ void func(int&& arg) {
 
 Note: Latter function definition is useful as an optimization hack, and is usually paired up with the former definition, as an overloaded function.
 
+## Expressions
+
+* **expression statement** - an expression followed by a semicolon
+* **compound statement** - sequence of statements enclosed by braces `{ }`
+* **declaration statements** - introduce identifiers (such as functions, templates, and namespaces)
+
 ### Casting
 
 You can cast an `lvalue` to an `rvalue` by using `std::move` (include `utility`). You can perform only two actions on moved-from object (the `lvalue` we casted from): reassign it or destroy it.
@@ -155,6 +161,14 @@ The `const` keyword can be used to:
 * promise **methods** won't modify current object's state (place `const` keyword after method name and argument list, but before the body brackets)
 * disable modification of **member variables** after their initialization
 
+### `constexpr`
+
+Whenever all the information required to compute an expression is present at compile time, the compiler is compelled to do so if that expression is marked with `constexpr`. All `constexpr` expressions are `const` because they're always fixed at runtime.
+
+### `explicit`
+
+Explicit constructors instruct the compiler not to consider the constructor as a means for implicit conversion.
+
 ### `mutable`
 
 Permits modification of the class member declared `mutable` even if the containing object is declared `const`.
@@ -172,6 +186,10 @@ If you want to override a virtual method, then, within the implementation, add t
 ### `virtual`
 
 If you want to permit a derived class to override a base class's methods, you use the `virtual` keyword. If you want to require a derived class to implement the method, you can append the `=0` suffix to a method definition (such methods are called pure virtual methods);
+
+### `volatile`
+
+The `volatile` keyword tells the compiler that every access made through this expression must be treated as a visible side effect. This means access cannot be optimized out or reordered with another visible side effect (useful in embedded, e.g. where writing a value to a variable triggers an event on a physical device).
 
 ## Casting
 
@@ -343,7 +361,7 @@ Note: You need `default` keyword if you want both a default constructor and a no
 
 ### Initialization
 
-Variables should be initialized with the bracket syntax, as it is the safest (won't generate garbage value):
+Variables should be initialized with the bracket syntax, as it is the safest (won't generate garbage value, and also doesn't permit narrowing conversions):
 
 ```cpp
 int x {};
@@ -353,9 +371,21 @@ int z[] { 1, 2, 3 };
 
 Note: `x` will be initialized to `0`.
 
+### Comma operator
+
+Allows several expressions separated by commas to be evaluated within a larger expression, from left to right (with the rightmost expression being the return value).
+
 ### Structured binding declaration (C++17)
 
 You can do primitive pattern matching, e.g. in error handling by using `return { data, success }` in a function (here: `function()`), and then retrieveng it with `auto [ data, success ] = function();`.
+
+### Type aliasing
+
+A type alias defines a name that refers to a previously defined name. Usage:
+
+```cpp
+using <type-alias> = <type-id>;
+```
 
 ### Polymorphism
 
@@ -437,12 +467,59 @@ T test(Arguments ... arguments) {
 Concepts won't be available until C++20, so `static_assert` is a compile-time evaluation alternative in C++17. The syntax is:
 
 ```cpp
-static_assert(boolean-expression, optional-message);
+static_assert(<boolean-expression>, <optional-message>);
 ```
 
-You can find type traits to use as `boolean-expression` [here](https://en.cppreference.com/w/cpp/types#Type_traits).
+You can find type traits to use as `<boolean-expression>` [here](https://en.cppreference.com/w/cpp/types#Type_traits). 
+
+Note: A related family of type support is available in the `<limits>` header, which allows querying verious properties of arithmetic types ([here](https://en.cppreference.com/w/cpp/types/numeric_limits).
 
 ### Future / promise
 
 This is equivalent to conditional variable wait (consumer) and signal (producer), respectively. See examples for use with `std::async` and `std::thread`.
 
+### Overloading operator `new`
+
+By default, operator `new` will allocate memory on the free store (i.e. the heap) to make space for dynamic objects. This behaviour can be tweaked by overloading the following four operators from the `<new>` header:
+
+```cpp
+void* operator new(size_t);
+void operator delete(void*);
+void* operator new[](size_t);
+void operator delete[](void*);
+```
+
+Note: On issues with allocation, the `std::bad_alloc()` exception should be thrown.
+
+Note: The preferred C++ way to deal with "raw bytes" is the `std::byte` type from `<cstddef>` header.
+
+#### Placement operators
+
+Using placement operators, you can manually construct objects in arbitrary memory (without overriding all free store allocations):
+
+```cpp
+void* operator new(size_t, void*);
+void operator delete(size_t void*);
+void* operator new[](void*, void*);
+void operator delete[](void*, void*);
+```
+
+For example:
+
+```cpp
+class SomeClass {
+	// ...
+}
+
+int main() {
+	std::byte data[sizeof(SomeClass) * 2];
+	SomeClass firstInstance = new(&data[0]) SomeClass{};
+	SomeClass secondInstance = new(&data[sizeof(SomeClass)]) SomeClass{};
+	firstInstance->~SomeClass();
+	secondInstance->~SomeClass();
+}
+```
+
+Note: You cannot use `delete` to release the resulting dynamic objects. You must call the object's destructor directly and only once.
+
+## Standard Template Library (STL)
