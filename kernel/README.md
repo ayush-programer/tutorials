@@ -1374,6 +1374,18 @@ One can also specify how much time can a `SCHED_RR` task take in milliseconds vi
 
 # Kernel debugging
 
+## Network
+
+### Drivers
+
+To find the driver of a physical network device (e.g. `eth0`), use:
+
+```shell
+readlink /sys/class/net/<device>/device/driver
+```
+
+Note: For a virtual network device (e.g. `lo`), there is no link pointing to the driver, but, you can find information about it in `/sys/devices/virtual/net/<device>` folder.
+
 ## Kernel panic
 
 To trigger kernel panic, you can use:
