@@ -812,7 +812,7 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 
 |    command    |     action      |
 |---------------|-----------------|
-| `:o <fname>`  | open file       |
+| `:e <fname>`  | open file       |
 |     `:w`      | save changes    |
 |     `:q`      | quit            |
 |`:colorscheme` | set colorscheme |
