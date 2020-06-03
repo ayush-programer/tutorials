@@ -540,15 +540,7 @@ Note: This is not really optimal as it creates subprocess for each match.
 
 ## ip
 
-### List network namespaces
-
-To list all network namespaces:
-
-```shell
-ip netns list
-```
-
-The command `ip netns show` is the same.
+The source code for various ip utils like `ip link` and `ip netns` can be found [here](https://github.com/shemminger/iproute2/tree/master/ip). A good tutorial for various virtual network models (via `ip link`) is located [here](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge).
 
 ### List links
 
@@ -559,6 +551,16 @@ ip link list
 ```
 
 This is similar to `ifconfig -a`.
+
+### List network namespaces
+
+To list all network namespaces:
+
+```shell
+ip netns list
+```
+
+The command `ip netns show` is the same.
 
 ### Add netns
 
@@ -592,7 +594,39 @@ To move a link to a specific namespace, use:
 ip netns exec <old_netns> ip link set <link_name> netns <new_netns>
 ```
 
-## nmap
+## ldconfig
+
+To see a list of installed libraries use:
+
+```shell
+ldconfig -p | grep <lib_name>
+```
+
+## Scan network for devices
+
+First, find the IP range for the desired interface (e.g. `eth0`):
+
+```shell
+ip addr show <interface> | sed -n 's/^ \+inet \([0-9\.\/]\+\).*$/\1/p'
+```
+
+This one will print out IP with subnet mask in CIDR format, which you can use directly in nmap:
+
+```shell
+nmap -sn <ip_with_CIDR>
+```
+
+Note: You can get the IP and subnet mask by using:
+
+```shell
+ifconfig <interface> | grep 'inet\s' | awk '{ print $2 OFS $4 }'
+```
+
+The only thing to note here is that you have to convert the subnet mask to CIDR, and you can do that with:
+
+```shell
+echo <subnet_mask> | python3 -c 'import sys; print(len([x for x in "".join(list(map(lambda o: bin(int(o,10))[2:].zfill(8), sys.stdin.read().split(".")))) if x == "1"]))' | xargs -I {} echo "/{}"
+```
 
 ## Number conversions
 
