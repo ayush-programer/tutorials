@@ -133,10 +133,20 @@ sudo sh -c 'echo "<text>" > <filename>'
 
 ## ls
 
+## Sort by date
+
 To sort by last modified date in ascending order:
 
 ```shell
 ls -tr
+```
+
+## Get inode number
+
+To get inode number of a file:
+
+```shell
+ls -i <file_name> | sed -n 's/^\([0-9]\+\)\s.*$/\1/p'
 ```
 
 ## grep
@@ -538,6 +548,20 @@ find . -type f -executable -name "*.sh" -exec cat {} \;
 
 Note: This is not really optimal as it creates subprocess for each match.
 
+### Find links
+
+To find links pointing to a specific file:
+
+```shell
+find -L / -samefile <filename>
+```
+
+To find links pointing to any file with specified filename:
+
+```shell
+find / -lname <filename>
+```
+
 ## ip
 
 The source code for various ip utils like `ip link` and `ip netns` can be found [here](https://github.com/shemminger/iproute2/tree/master/ip). A good tutorial for various virtual network models (via `ip link`) is located [here](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge).
@@ -626,6 +650,82 @@ The only thing to note here is that you have to convert the subnet mask to CIDR,
 
 ```shell
 echo <subnet_mask> | python3 -c 'import sys; print(len([x for x in "".join(list(map(lambda o: bin(int(o,10))[2:].zfill(8), sys.stdin.read().split(".")))) if x == "1"]))' | xargs -I {} echo "/{}"
+```
+
+## Devices
+
+### Block devices
+
+List block devices:
+
+```shell
+lsblk
+```
+
+Basically the information is derived from `/sys/block/` folder (and its subfolders).
+
+### PCI devices
+
+List PCI devices:
+
+```shell
+lspci
+```
+
+The information is obtained by parsing:
+
+```
+/sys/bus/pci/devices/<device>/config
+```
+
+This is not human-readable, however. Usually there is a file called `pci.ids` on the system, possibly somewhere in `/usr/share/` folder.
+
+### USB devices
+
+List USB devices (use `-v` switch for more information on each device):
+
+```shell
+lsusb
+```
+
+There is also an alternative:
+
+```shell
+usb-devices
+```
+
+You can find all this information manually in the `/sys/bus/usb/devices` folder. To find the driver:
+
+```shell
+readlink /sys/bus/usb/devices/<device>/driver
+```
+
+To find which specific kernel module is responsible:
+
+```shell
+/sbin/modinfo /sys/bus/usb/devices/<device>/modalias
+```
+
+### Network devices
+
+To find the driver of a physical network device (e.g. `eth0`), use:
+
+```shell
+readlink /sys/class/net/<device>/device/driver
+```
+
+Note: For a virtual network device (e.g. `lo`), there is no link pointing to the driver, but, you can find information about it in `/sys/devices/virtual/net/<device>` folder.
+
+### Displays
+
+It's best to get info on displays using `xrandr`.
+
+#### Primary display size
+
+Here is a one-liner using `xrandr` to get display size (diagonal) in inches:
+
+```shell
+xrandr | grep primary | sed -n 's/^.*\s\([0-9]\+\)mm\sx\s\([0-9]\+\)mm$/\1x\2/p' | python3 -c 'import sys; dim = tuple(map(lambda s: (int(s, 10) / 25.4 )**2, sys.stdin.read()[:-1].split("x"))); print((dim[0] + dim[1])**0.5)'
 ```
 
 ## Number conversions
