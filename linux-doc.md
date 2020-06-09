@@ -15,6 +15,26 @@ Another alternative is `gdeb` which will install all the dependencies automatica
 sudo gdebi <deb_file>
 ```
 
+## dd
+
+### Format disk
+
+To format disk, use:
+
+```shell
+dd if=/dev/zero/ of=/dev/sd<?> conv=fdatasync status=progress
+```
+
+### Install ISO
+
+To install ISO image on a disk:
+
+```shell
+dd bs=4M if=<path_to_ISO> of=/dev/sd<?> conv=fdatasync status=progress
+```
+
+Note: The `bs` option specifies size of one write, while `conv`, as set to `fdatasync` will ensure that all data is flushed to disk when `dd` is finished writing.
+
 ## Shell variables
 
 | var. |                 meaning                 |
@@ -653,6 +673,14 @@ echo <subnet_mask> | python3 -c 'import sys; print(len([x for x in "".join(list(
 ```
 
 ## Devices
+
+To get a list of all devices, use:
+
+```shell
+lshw
+```
+
+The link to source code is [here](https://github.com/lyonel/lshw), along with list of search paths.
 
 ### Block devices
 
