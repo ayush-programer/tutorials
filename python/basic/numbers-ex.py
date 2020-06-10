@@ -56,3 +56,12 @@ print(oct(255))
 # sum(iterable, start_value)
 print(sum([3, 4], 10))
 # 17
+
+print(3982.89 - 4000.0)
+# -17.110000000000127
+
+import decimal as dec
+
+print(dec.Decimal('3982.89') - dec.Decimal('4000.0'))
+# Decimal('-17.11')
+
