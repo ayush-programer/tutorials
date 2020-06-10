@@ -756,50 +756,9 @@ Here is a one-liner using `xrandr` to get display size (diagonal) in inches:
 xrandr | grep primary | sed -n 's/^.*\s\([0-9]\+\)mm\sx\s\([0-9]\+\)mm$/\1x\2/p' | python3 -c 'import sys; dim = tuple(map(lambda s: (int(s, 10) / 25.4 )**2, sys.stdin.read()[:-1].split("x"))); print((dim[0] + dim[1])**0.5)'
 ```
 
-## Number conversions
-
-You can use Python to convert from hex to decimal, binary, etc., as it can easily be called from the shell:
-
-```shell
-python -c "<command>"
-```
-
-To convert from decimal to binary:
-
-```python
->>> bin(43)
-'0b101011'
-```
-
-To cut the '0b', use:
-
-```python
->>> bin(43)[2:]
-'101011'
-```
-
-To further format the output, you can use:
-
-```python
->>> bin(43)[2:].zfill(8)
-'00101011'
-```
-
-To convert a string to to an integer of base 16:
-
-```python
->>> int('57', 16)
-87
-```
-
-To convert a number to a string, use:
-
-```python
->>> str(43)
-'43'
-```
-
 ## Filesystem
+
+### Create a file
 
 A bit advanced tool to create a file is:
 
@@ -814,6 +773,38 @@ For `<mode>` you can choose:
 |   `b`    | block (buffered) special file       |
 | `c`, `u` | character (unbuffered) special file |
 |   `p`    | FIFO                                |
+
+### Temporary files
+
+To create a temporary file with a unique name:
+
+```shell
+$ mktemp
+/tmp/tmp.teJqtZlPqv
+```
+
+Permissions are set to `600`. If provided with template, it will create it in the current folder:
+
+```shell
+$ mktemp test.XXX
+test.jEQ
+```
+
+Note: The duration of the file is system and location dependant.
+
+#### `tmpfs` and `ramfs`
+
+To create a temporary filesystem (all files created there reside only in RAM), use, e.g.:
+
+```shell
+mount -t tmpfs -o size=50m tmpfs <mount_point>
+```
+
+This will create a `tmpfs` partition of 50 megabytes.
+
+Note: You can view all mounted filesystems (in pretty-print) by using `df -h`.
+
+Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will grow dynamically as space is used, and the system might crash when all RAM is consumed. On the other hand, `tmpfs` will not grow dynamically (it is fixed on the specified size), and might use swap space if out of RAM.
 
 # Git
 
