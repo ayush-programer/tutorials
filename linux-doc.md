@@ -153,7 +153,7 @@ sudo sh -c 'echo "<text>" > <filename>'
 
 ## ls
 
-## Sort by date
+### Sort by date
 
 To sort by last modified date in ascending order:
 
@@ -161,7 +161,7 @@ To sort by last modified date in ascending order:
 ls -tr
 ```
 
-## Get inode number
+### Get inode number
 
 To get inode number of a file:
 
@@ -515,7 +515,7 @@ Assume we have a list of songs:
 The whitespaces can be present, but not necessarily. We want to extract track number, song name and format. We could do this with:
 
 ```shell
-sed -n 's/^\([0-9]\+\)\s*-\s*\?\(\w\+\)\.\(\(\w\|[0-9]\)\+\)$/track: \1, name: \2, format: \3/p'
+sed -n 's/^\([0-9]\+\)\s*\?-\s*\?\(\w\+\)\.\(\w\+\)$/track: \1, name: \2, format: \3/p'
 ```
 
 Note: In regular `sed`, it is not possible to do grouping without capturing (as is possible with some other regex conventions by using `(?:<pattern>)` syntax.
