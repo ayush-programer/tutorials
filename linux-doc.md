@@ -35,6 +35,36 @@ dd bs=4M if=<path_to_ISO> of=/dev/sd<?> conv=fdatasync status=progress
 
 Note: The `bs` option specifies size of one write, while `conv`, as set to `fdatasync` will ensure that all data is flushed to disk when `dd` is finished writing.
 
+## Keyboard layout
+
+To list available keyboard layouts, try finding `keymaps` folder somewhere in `/usr/share/`.
+
+### Default
+
+In the `keymaps` folder there is usually `defkeymap.kmap.gz` file. It can be reset to with `loadkeys -d`.
+
+### Get current
+
+To get current keyboard layout, use `dumpkeys`. On XServer, you can also see the layout with:
+
+```shell
+grep XKBLAYOUT /etc/default/keyboard
+```
+
+### Change layout
+
+To change keyboard layout, you can use:
+
+```shell
+lodakeys <layout>
+```
+
+This won't work on XServer, however. In this case, use:
+
+```shell
+setxkbmap <layout>
+```
+
 ## Shell variables
 
 | var. |                 meaning                 |
