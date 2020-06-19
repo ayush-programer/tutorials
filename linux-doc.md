@@ -612,11 +612,13 @@ To find links pointing to any file with specified filename:
 find / -lname <filename>
 ```
 
-## ip
+## Networking
+
+### ip
 
 The source code for various ip utils like `ip link` and `ip netns` can be found [here](https://github.com/shemminger/iproute2/tree/master/ip). A good tutorial for various virtual network models (via `ip link`) is located [here](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge).
 
-### List links
+#### List links
 
 You can get the list of all links (across all namespaces) by using:
 
@@ -626,7 +628,7 @@ ip link list
 
 This is similar to `ifconfig -a`.
 
-### List network namespaces
+#### List network namespaces
 
 To list all network namespaces:
 
@@ -636,7 +638,7 @@ ip netns list
 
 The command `ip netns show` is the same.
 
-### Add netns
+#### Add netns
 
 You can add a network namespace via:
 
@@ -644,7 +646,7 @@ You can add a network namespace via:
 ip netns add <netns_name>
 ```
 
-### Execute within netns
+#### Execute within netns
 
 You can run any shell command within the specified network namespace by using:
 
@@ -660,7 +662,7 @@ ip netns exec <netns_name> ip link list
 
 This will give you a list of links within the specified network namespace.
 
-### Move link to a namespace
+#### Move link to a namespace
 
 To move a link to a specific namespace, use:
 
@@ -668,15 +670,7 @@ To move a link to a specific namespace, use:
 ip netns exec <old_netns> ip link set <link_name> netns <new_netns>
 ```
 
-## ldconfig
-
-To see a list of installed libraries use:
-
-```shell
-ldconfig -p | grep <lib_name>
-```
-
-## Scan network for devices
+### Scan network for devices
 
 First, find the IP range for the desired interface (e.g. `eth0`):
 
@@ -701,6 +695,62 @@ The only thing to note here is that you have to convert the subnet mask to CIDR,
 ```shell
 echo <subnet_mask> | python3 -c 'import sys; print(len([x for x in "".join(list(map(lambda o: bin(int(o,10))[2:].zfill(8), sys.stdin.read().split(".")))) if x == "1"]))' | xargs -I {} echo "/{}"
 ```
+
+### NFS
+
+When sharing files between Linux machines, it is best to use NFS. To set up a shared folder on the server, first be sure to install `nfs-kernel-server` and `nfs-common` (Ubuntu/Debian) or `nfs-utils` (Arch).
+
+Once installed, edit `/etc/exports` to add something like:
+
+```shell
+/path/to/shared/fs	192.168.5.1/24(rw,no_root_squash,async)
+```
+
+You already have a few examples in the forementioned file.
+
+Restart the `nfs-kernel-server` with:
+
+```shell
+service nfs-kernel-server restart
+```
+
+Note, the same can be accomplished with:
+
+```shell
+sudo /etc/init.d/nfs-kernel-server restart
+```
+
+You can verify that everything is set up properly by typing:
+
+```shell
+showmount -e
+```
+
+Finally, on the client-side (after installing `nfs-common`):
+
+```shell
+mount -t nfs <ip_addr>:/path/to/shared/fs /path/to/mount
+```
+
+## ldconfig
+
+### List
+
+To see a list of installed libraries use:
+
+```shell
+ldconfig -p | grep <lib_name>
+```
+
+### Update
+
+To update after installing or removing libraries, just run:
+
+```shell
+ldconfig
+```
+
+Note: You may need to run this as root.
 
 ## Devices
 
