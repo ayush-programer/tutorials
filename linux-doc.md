@@ -93,6 +93,14 @@ armv7l
 
 For general system info, use `uname -a`.
 
+### System and service manager
+
+To check whether `systemd` or `System V` is used, type:
+
+```shell
+[[ -e /run/systemd/system ]] && echo "systemd" || echo "System V"
+```
+
 ## xargs
 
 It is possible to pass `argument` as argument to command `command` using `xargs`:
