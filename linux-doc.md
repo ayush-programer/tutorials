@@ -620,6 +620,171 @@ To find links pointing to any file with specified filename:
 find / -lname <filename>
 ```
 
+## Audio
+
+### PulseAudio
+
+You can check if PulseAudio is up and running with:
+
+```shell
+$ pulseaudio --check
+$ echo $?
+0
+```
+
+#### Settings
+
+PulseAudio settings are located in file `/etc/pulse/default.pa`.
+
+#### Restart
+
+To restart the daemon, you can just kill it and it will start again automatically:
+
+```shell
+pulseaudio -k
+```
+
+Note: You can also restart ALSA if problems persist:
+
+```shell
+pulseaudio -k && sudo alsa force-reload
+```
+
+Note: Sometimes it may also be necessary to start the PulseAudio daemon manually with:
+
+```shell
+pulseaudio -D
+```
+
+#### Fix crackling audio
+
+If crackling or clicking is present when playing audio, usually it is resolved with either adding `tsched=0` or removing it from the following line in PulseAudio settings:
+
+```shell
+load-module module-udev-detect
+```
+
+Note: According to documentation, `tsched` is by default enabled, and that means PulseAudio will use a system-timer based module. If disabled (if hardware does not return accurate timing information), interrupt-based timing will be used instead.
+
+Note: You can check if `tsched` is enabled with:
+
+```shell
+pacmd list | grep tsched
+```
+
+#### PulseAudio and JACK
+
+You can use PulseAudio as a client to JACK server. First run:
+
+```shell
+apt install pulseaudio-module-jack
+```
+
+Note that this is distribution-dependant.
+
+After that, run:
+
+```shell
+pacmd load-module module-jack-sink
+pacmd load-module module-jack-source
+```
+
+You can also add these lines (without `pacmd`) in PulseAudio settings file.
+
+Note: Alternative to `pacmd` is `pactl`, but former is preferred.
+
+After running JACK, be sure to run:
+
+```shell
+pacmd set-default-sink jack_out
+```
+
+Note: This line can be put into "Execute script after Startup" in "Options" tab in `qjackctl` setup.
+
+#### Sink operations
+
+You can perform operations on sinks, such as set volume, mute, etc. To get a list of sinks, use:
+
+```shell
+pacmd list-sinks | grep index -nA2
+```
+
+Similarly, you can see current volume settings for specific sinks:
+
+```shell
+pacmd list-sinks | grep 'index\|^\s\+volume:'
+```
+
+Then, to, for example, set volume for a specific sink, run:
+
+```shell
+pacmd set-sink-volume <sink_index> <sink_volume>
+```
+
+#### PulseAudio GUI control
+
+If necessary, you can use `pavucontrol` to control PulseAudio.
+
+### JACK
+
+To start `jackd` use:
+
+```shell
+jackd -d <driver>
+```
+
+You can use `-h` to get help for specific driver:
+
+```shell
+jackd -d <driver> -h
+```
+
+Note: For ALSA, use:
+
+```shell
+jackd -d alsa
+```
+
+#### Connections
+
+To see a list of JACK clients:
+
+```shell
+jack_lsp
+```
+
+You can then connect clients with:
+
+```shell
+jack_connect <client_1> <client_2>
+```
+
+Note: To disconnect, just use `jack_disconnect` in the same manner as above.
+
+#### JACK over network
+
+On master (where audio will be output to speakers), after running JACK, also run:
+
+```shell
+jack_load netmanager
+```
+
+This will setup JACK network server.
+
+On slave (from where audio will be played), simply run `jackd` with:
+
+```shell
+jackd -d net -a <server_ip>
+```
+
+For additional options, see:
+
+```shell
+jackd -d net -h
+```
+
+Note: This step for slave may not be necessary; usually it is enough to set up `net` as driver in `qjackctl` and start the JACK server.
+
 ## Networking
 
 ### GUI via SSH
