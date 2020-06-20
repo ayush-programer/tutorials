@@ -901,7 +901,11 @@ Once installed, edit `/etc/exports` to add something like:
 /path/to/shared/fs	192.168.5.1/24(rw,no_root_squash,async)
 ```
 
-You already have a few examples in the forementioned file.
+You already have a few examples in the forementioned file. Also, you can read about all options with:
+
+```shell
+man exports
+```
 
 Restart the `nfs-kernel-server` with:
 
