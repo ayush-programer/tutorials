@@ -622,6 +622,28 @@ find / -lname <filename>
 
 ## Networking
 
+### GUI via SSH
+
+You can run GUI applications on host with:
+
+```shell
+ssh -Y <username>@<address>
+```
+
+Note: If the `-Y` switch does not work, use `-X` (less secure). You can also use `-XY` to try both.
+
+Note: Once connected, you can run the GUI application on remote display by typing:
+
+```shell
+export DISPLAY=:0
+```
+
+Note: You can also forward mouse and keyboard by installing `x2x` on host and then running:
+
+```shell
+ssh -X <username>@<address> 'x2x -east -to :0'
+```
+
 ### ip
 
 The source code for various ip utils like `ip link` and `ip netns` can be found [here](https://github.com/shemminger/iproute2/tree/master/ip). A good tutorial for various virtual network models (via `ip link`) is located [here](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#bridge).
