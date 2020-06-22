@@ -95,11 +95,73 @@ For general system info, use `uname -a`.
 
 ### System and service manager
 
-To check whether `systemd` or `System V` is used, type:
+To check whether systemd or System V is used, type:
 
 ```shell
 [[ -e /run/systemd/system ]] && echo "systemd" || echo "System V"
 ```
+
+#### systemd
+
+##### Start program on boot
+
+Create a file with `.service` suffix in `/etc/systemd/system/` folder. It should minimally contain:
+
+```
+[Unit]
+After=<service_or_target_name>
+
+[Service]
+ExecStart=<command_or_script>
+
+[Install]
+WantedBy=<service_or_target_name>
+```
+
+You can find list of services and targets by using:
+
+```shell
+ls /lib/systemd/system/{*.target,*.service} | xargs -L1 basename
+```
+
+Field explanations:
+
+ * `After` - instructs systemd on when the script should be run
+ * `ExecStart` - command or script to execute
+ * `WantedBy` - into what boot target the unit should be installed
+
+Additional common fields:
+
+ * `Description` - describes the unit
+ * `Type` - two common types are `simple` and `oneshot` (useful if the command issued by `ExecStart` exists); see man pages for other types
+ * `RemainAfterExit` - useful if the type is `oneshot` as even when the command exits, systemd will consider the service active
+ * `Environment` - provide environment variables
+
+Note: You can find all necessary information by using:
+
+```shell
+man systemd.service
+```
+
+Make the `.service` file executable (for example, with `chmod 744`). It may be necessary to reload the services:
+
+```shell
+systemctl daemon-reload
+```
+
+Then, enable the unit with:
+
+```shell
+systemctl enable <service_name>
+```
+
+The unit will start after reboot. You can, however, do it manually with:
+
+```shell
+systemctl start <service_name>
+```
+
+Note: The corresponding commands for the former and latter are `disable` and `stop`, respectively.
 
 ## xargs
 
@@ -744,6 +806,22 @@ Note: For ALSA, use:
 ```shell
 jackd -d alsa
 ```
+#### Real-time privileges
+
+First make sure that your user is part of `audio` group:
+
+```shell
+usermod -a -G audio <username>
+```
+
+Note: Group name for JACK might differ on some distributions, so, if there is no `audio` group check for 'jackuser' or similar names before adding the group yourself with `groupadd audio`.
+
+Then, add the following lines to `/etc/security/limits.d/audio.conf` (create it if it does not exist):
+
+```
+@audio	-	rtprio	95
+@audio	-	memlock	unlimited
+```
 
 #### Connections
 
@@ -784,6 +862,42 @@ jackd -d net -h
 ```
 
 Note: This step for slave may not be necessary; usually it is enough to set up `net` as driver in `qjackctl` and start the JACK server.
+
+#### Autostart JACK
+
+JACK can be autostarted via systemd service. Note that this is not the preferred way of doing, as JACK was not designed as a system-wide replacement for PulseAudio, and requires XServer. However, a few hacks can enable JACK to be started without XServer via systemd; just copy the following contents to `/etc/systemd/system/jackd.service`:
+
+```
+[Unit]
+Description=JACK daemon
+After=sound.target
+
+[Service]
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
+Environment='JACK_NO_AUDIO_RESERVATION=1'
+User=<user_name>
+ExecStart=/usr/bin/jackd -R -d alsa
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then, simply enable the service with `systemctl enable jackd.service`.
+
+### OpenAL
+
+OpenAL can be configured by editing the following file:
+
+```
+/etc/openal/alsoft.conf
+```
+
+Note: If there are issues with `alsoft` JACK client, you can always force OpenAL to use PulseAudio and then connect PulseAudio with JACK (as described above). In this case, make sure that driver is properly configured in `alsoft.conf`:
+
+```
+driver = pulse
+```
 
 ## Networking
 
