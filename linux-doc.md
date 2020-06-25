@@ -15,26 +15,6 @@ Another alternative is `gdeb` which will install all the dependencies automatica
 sudo gdebi <deb_file>
 ```
 
-## dd
-
-### Format disk
-
-To format disk, use:
-
-```shell
-dd if=/dev/zero/ of=/dev/sd<?> conv=fdatasync status=progress
-```
-
-### Install ISO
-
-To install ISO image on a disk:
-
-```shell
-dd bs=4M if=<path_to_ISO> of=/dev/sd<?> conv=fdatasync status=progress
-```
-
-Note: The `bs` option specifies size of one write, while `conv`, as set to `fdatasync` will ensure that all data is flushed to disk when `dd` is finished writing.
-
 ## Keyboard layout
 
 To list available keyboard layouts, try finding `keymaps` folder somewhere in `/usr/share/`.
@@ -1085,6 +1065,34 @@ lsblk
 
 Basically the information is derived from `/sys/block/` folder (and its subfolders).
 
+#### Filesystem info
+
+To get information on filesystems per partition, use:
+
+```shell
+file -sL /dev/sd*
+```
+
+Note: You can also use `blkid`.
+
+#### Format disk
+
+To format disk, use:
+
+```shell
+dd if=/dev/zero/ of=/dev/sd<?> conv=fdatasync status=progress
+```
+
+#### Install ISO
+
+To install ISO image on a disk:
+
+```shell
+dd bs=4M if=<path_to_ISO> of=/dev/sd<?> conv=fdatasync status=progress
+```
+
+Note: The `bs` option specifies size of one write, while `conv`, as set to `fdatasync` will ensure that all data is flushed to disk when `dd` is finished writing.
+
 ### PCI devices
 
 List PCI devices:
@@ -1199,78 +1207,6 @@ Note: You can view all mounted filesystems (in pretty-print) by using `df -h`.
 
 Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will grow dynamically as space is used, and the system might crash when all RAM is consumed. On the other hand, `tmpfs` will not grow dynamically (it is fixed on the specified size), and might use swap space if out of RAM.
 
-# Git
-
-## List tracked files
-
-```shell
-git ls-tree -r master --name-only
-```
-
-## List incoming / outgoing commits
-
-After doing a `git fetch`, you might want to see commits that have been loaded from upstream:
-
-```shell
-git log ..origin/master
-```
-
-This is more useful than doing a `git pull`, as you might want to check commits, cherry pick them or rebase. Similarly, for outgoing commits:
-
-```shell
-git log origin/master..
-```
-
-If you are satisfied, you can simply use:
-
-```shell
-git rebase origin/master
-```
-
-This is usually better than `git pull` which will create a merge commit in between.
-
-## Make local branch equal to remote
-
-You can do this simply with:
-
-```shell
-git reset --hard origin/master
-```
-
-Note: This, just as examples above, assume that remote you are operating on is `origin` and the branch is `master`.
-
-## Rebase onto
-
-To rebase all commits from commit `A` on top of commit `B`, use:
-
-```shell
-git rebase --onto <new_parent> <old_parent>
-```
-
-Here, `new_parent` is commit `B` and `old_parent` is commit `A`.
-
-## Various lists
-
-To see all branches, do:
-
-```shell
-git branch -a
-```
-
-To see all remotes, do:
-
-```shell
-git remote -v
-```
-
-## Unstage file
-
-To unstage a file:
-
-```shell
-git reset -- <filename>
-```
-
 ## tmux
 
 |        action       |    shortcut   |
@@ -1373,8 +1309,79 @@ Similarly, for `xclip`:
 ```
 :r !xclip -o -selection clipboard
 ```
+# Git
 
-## GDB basics
+## List tracked files
+
+```shell
+git ls-tree -r master --name-only
+```
+
+## List incoming / outgoing commits
+
+After doing a `git fetch`, you might want to see commits that have been loaded from upstream:
+
+```shell
+git log ..origin/master
+```
+
+This is more useful than doing a `git pull`, as you might want to check commits, cherry pick them or rebase. Similarly, for outgoing commits:
+
+```shell
+git log origin/master..
+```
+
+If you are satisfied, you can simply use:
+
+```shell
+git rebase origin/master
+```
+
+This is usually better than `git pull` which will create a merge commit in between.
+
+## Make local branch equal to remote
+
+You can do this simply with:
+
+```shell
+git reset --hard origin/master
+```
+
+Note: This, just as examples above, assume that remote you are operating on is `origin` and the branch is `master`.
+
+## Rebase onto
+
+To rebase all commits from commit `A` on top of commit `B`, use:
+
+```shell
+git rebase --onto <new_parent> <old_parent>
+```
+
+Here, `new_parent` is commit `B` and `old_parent` is commit `A`.
+
+## Various lists
+
+To see all branches, do:
+
+```shell
+git branch -a
+```
+
+To see all remotes, do:
+
+```shell
+git remote -v
+```
+
+## Unstage file
+
+To unstage a file:
+
+```shell
+git reset -- <filename>
+```
+
+# GDB basics
 
 To insert a breakpoint by line number:
 
@@ -1424,6 +1431,116 @@ To continue execution until next breakpoint:
 (gdb) continue
 ```
 
+# U-Boot
+
+## Example compile for RPi 3B+
+
+First, clone U-Boot repo:
+
+```shell
+git clone --depth 1 --branch v2017.11 git://git.denx.de/u-boot.git v2017.11
+```
+
+Then, to compile for 64-bit:
+
+```shell
+sudo make -C v2017.11/ CROSS_COMPILE=aarch64-linux-gnu- rpi_3_defconfig
+sudo make -C v2017.11/ CROSS_COMPILE=aarch64-linux-gnu-
+```
+
+This will create a `u-boot.bin` file which you can find in one of repo subfolders.
+
+Note: If using Ubuntu, you can install `aarch64` toolchain with:
+
+```shell
+sudo apt install gcc-aarch64-linux-gnu
+```
+
+Then, create file `config.txt` that will be copied onto RPi SD card, along with `u-boot.bin`:
+
+```shell
+// config.txt
+
+# Serial console output!
+enable_uart=1
+
+# 64bit-mode
+arm_control=0x200
+
+# Use U-Boot
+kernel=u-boot.bin
+
+device_tree_address=0x100
+device_tree_end=0x8000
+
+dtparam=i2c_arm=on
+dtparam=spi=on
+```
+
+### Script for running Raspbian
+
+Create `rpi3-bootscript.txt`:
+
+```shell
+// rpi3-bootscript.txt
+
+setenv kernel_addr_r 0x01000000
+setenv ramdisk_addr_r 0x02100000
+fatload mmc 0:1 ${kernel_addr_r} boot/Image
+fatload mmc 0:1 ${ramdisk_addr_r} boot/initrd.img
+setenv initrdsize $filesize
+booti ${kernel_addr_r} ${ramdisk_addr_r}:${initrdsize} ${fdt_addr_r}
+```
+
+You can compile it with:
+
+```shell
+mkimage -T script -n 'Bootscript' -C none -d ~/<input_file> ~/<output_file>.scr
+```
+
+In this case, for example:
+
+```shell
+sudo mkimage -A arm64 -O linux -T script -d ~/rpi3-bootscript.txt ~/boot.scr
+```
+
+Note: In general, you should be able to use `source` from U-Boot to load the script.
+
+## Serial console
+
+You can access U-Boot via serial console (serial to USB adapter needed, though): 
+
+```shell
+screen /dev/ttyUSB0 115200
+```
+
+Similarly, you can use `minicom`.
+
+## Load file via serial console
+
+If using minicom, you can easily load file to memory address by using:
+
+```
+U-Boot> loady <addr>
+```
+
+You can then select file via `minicom`.
+
+Note: If using Ubuntu, make sure to run:
+
+```shell
+sudo apt install lrzsz
+```
+
+## Execute binary
+
+You can execute a standalone program by using:
+
+```shell
+go <addr>
+```
+
+Note: For Linux kernel and similar programs which require line parameters, you should use `bootm`.
 # ARM Assembly
 
 ## commands
