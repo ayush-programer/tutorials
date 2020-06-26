@@ -1541,6 +1541,7 @@ go <addr>
 ```
 
 Note: For Linux kernel and similar programs which require line parameters, you should use `bootm`.
+
 # ARM Assembly
 
 ## commands
