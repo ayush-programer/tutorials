@@ -202,7 +202,7 @@ To configure the kernel, run:
 make menuconfig
 ```
 
-Note: It's best to do kernel configuration via the Yocto build system.
+Note: You can find information on all kernel configuration options [here](https://elixir.bootlin.com/linux/v5.0/source/Kconfig).
 
 ### Expose configuration file
 
