@@ -153,7 +153,7 @@ argument | xargs -I {} command {}
 
 The `{}` is a placeholder for the pipe input.
 
-Note: To do a command for each line of input, you need to specify this with `-L` switch. Take a look at this example:
+Note: To do a command for each line of input, you need to specify this with `-L` switch. Take a look at these examples:
 
 ```shell
 $ pgrep ksoft | xargs ps -o comm,cls,pri,pcpu,psr
@@ -162,6 +162,9 @@ ksoftirqd/0      TS  19  0.0   0
 ksoftirqd/1      TS  19  0.0   1
 ksoftirqd/2      TS  19  0.0   2
 ksoftirqd/3      TS  19  0.0   3
+```
+
+```shell
 $ pgrep ksoft | xargs -L 1 ps -o comm,cls,pri,pcpu,psr
 COMMAND         CLS PRI %CPU PSR
 ksoftirqd/0      TS  19  0.0   0
@@ -180,6 +183,18 @@ Linux error codes can be found in `errno-base.h` and `errno.h` located in `/usr/
 ## Jobs
 
 To see all jobs, type `jobs`. To put a job to foreground, use `fg <job_num>`. Similarly, to put a job to background, type `bg <job_num>`. You can put the current process to background with `CTRL + z` combination.
+
+## IPC
+
+You can see processes using the IPC (Inter-Process Communication) with the `ipcs` command.
+
+## watch
+
+You can run a command periodically and highlight differences using:
+
+```shell
+watch -n <sec> -d <command>
+```
 
 ## xxd
 
