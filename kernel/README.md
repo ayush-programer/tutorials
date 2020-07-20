@@ -123,6 +123,10 @@ Note: For the former method include `linux/version.h` and for the latter `linux/
 
 Short summary of low latency and RT kernel versions can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
 
+## Boot parameters
+
+You can find information on boot parameters [here](https://elixir.bootlin.com/linux/v5.0/source/Documentation/admin-guide/kernel-parameters.txt).
+
 ## printk
 
 To print a message to DMESG, use:
