@@ -615,9 +615,25 @@ sed -n 's/^\([0-9]\+\)\s*\?-\s*\?\(\w\+\)\.\(\w\+\)$/track: \1, name: \2, format
 
 Note: In regular `sed`, it is not possible to do grouping without capturing (as is possible with some other regex conventions by using `(?:<pattern>)` syntax.
 
-### Vim specific
+### Range
 
-To input whole file to `sed`, use `:%` as usual. To input a range, use, for example, `:2,$`. This will input a range from second line to the last one.
+To input a range, use, for example, `2,$` as prefix. This will input a range from second line to the last one.
+
+```sh
+$ seq 1 5 | sed -n '3,$p'
+3
+4
+5
+```
+
+Note: Similarly, to print from first to third:
+
+```sh
+$ seq 1 5 | sed -n '1,3p'
+1
+2
+3
+```
 
 #### Number of lines
 
@@ -1280,7 +1296,7 @@ Note: You don't have to specify PID, using only `screen -r` will attach you to t
 
 ## Vim
 
-### Shortcuts
+### Generic shortcuts
 
 |        action       |    shortcut   |
 |---------------------|---------------|
@@ -1315,6 +1331,10 @@ Note: You don't have to specify PID, using only `screen -r` will attach you to t
 | Paste before        |      `P`      |
 | Indent              |      `>`      |
 | Unindent            |      `<`      |
+| Next occurrence     |      `*`      |
+| Previous occurrence |      `#`      |
+| Repeat last search  |      `n`      |
+| Prev. last search   |      `N`      |
 
 Note: The `&` means here "followed by" and not "at the same time" (which is `+`).
 
@@ -1371,6 +1391,22 @@ Similarly, for `xclip`:
 ```
 :r !xclip -o -selection clipboard
 ```
+
+### `ctags`
+
+|        action       |    shortcut   |
+|---------------------|---------------|
+| Go to selected tag  |  `WCRL + ]`   |
+| Back to prev. tag   |  `WCRL + t`   |
+
+Note: You can also use the following commands:
+
+|       command       |    shortcut   |
+|---------------------|---------------|
+| Search for a tag    |  `:ts <tag>`  |
+| Next definition     |    `:tn`      |
+| Previous definition |    `:tp`      |
+
 # Git
 
 ## List tracked files
