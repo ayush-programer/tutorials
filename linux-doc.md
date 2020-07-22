@@ -1222,7 +1222,54 @@ Note: You can view all mounted filesystems (in pretty-print) by using `df -h`.
 
 Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will grow dynamically as space is used, and the system might crash when all RAM is consumed. On the other hand, `tmpfs` will not grow dynamically (it is fixed on the specified size), and might use swap space if out of RAM.
 
-## tmux
+
+## Terminal multiplexing
+
+### `screen`
+
+#### Shortcuts
+
+|        action       |    shortcut   |
+|---------------------|---------------|
+| SCRL                |  `CTRL + a`   |
+| Detach              |  `SCRL + d`   |
+| Split screen        |  `SCRL & |`   |
+| Next screen         | `SCRL & TAB`  |
+| Close screen        |  `SCRL & X`   |
+| Create window       |  `SCRL & C`   |
+| Next window         |  `SCRL & n`   |
+| Previous window     |  `SCRL & p`   |
+| Help                |  `SCRL & ?`   |
+
+Note: Next and previous window will change windows inside current screen. Also, close screen will not close the window it is displaying.
+
+#### Create session
+
+You can create session by simply calling `screen`. You can create a named screen session by using:
+
+```sh
+screen -S <name>
+```
+
+#### List sessions
+
+To list current screen sessions:
+
+```sh
+screen -list
+```
+
+#### Reattach to a session
+
+To reattach to a session, try:
+
+```sh
+screen -r <pid>
+```
+
+Note: You don't have to specify PID, using only `screen -r` will attach you to the last used screen session.
+
+### `tmux`
 
 |        action       |    shortcut   |
 |---------------------|---------------|
