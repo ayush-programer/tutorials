@@ -231,6 +231,14 @@ You can arrange text in columns very easy with the `column` tool. Try this for e
 column -t -s':' /etc/passwd
 ```
 
+## du
+
+To get the size of a folder, use:
+
+```shell
+du -sh <folder>
+```
+
 ## echo
 
 |  switch   |           meaning           |
