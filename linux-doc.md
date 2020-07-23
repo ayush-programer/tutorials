@@ -1355,7 +1355,21 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 |     `:q`      | quit            |
 |`:colorscheme` | set colorscheme |
 
-### Miscellaneous
+### Edit via SSH
+
+You can edit files via SSH with:
+
+```sh
+vim scp://<user>@<host>/path/to/file
+```
+
+Similarly, you can use the same as in-editor command:
+
+```
+:e scp://<user>@<host>/path/to/file
+```
+
+### Input ranges
 
 |  symbol  |              meaning             |
 |----------|----------------------------------|
