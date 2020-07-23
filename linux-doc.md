@@ -1429,6 +1429,20 @@ Note: You can also use the following commands:
 | Next definition     |    `:tn`      |
 | Previous definition |    `:tp`      |
 
+#### Generate tags file
+
+To generate tags file for a folder (and its subfolders), use:
+
+```shell
+ctags -R
+```
+
+Similarly, you can generate tags for the Linux kernel source with:
+
+```shell
+make tags
+```
+
 # Git
 
 ## List tracked files
