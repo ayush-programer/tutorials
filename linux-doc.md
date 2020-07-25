@@ -1249,13 +1249,14 @@ Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will gr
 
 ## Terminal multiplexing
 
-### `screen`
+### GNU Screen
 
 #### Shortcuts
 
 |        action       |    shortcut   |
 |---------------------|---------------|
 | SCRL                |  `CTRL + a`   |
+| Open console        |  `SCRL + :`   |
 | Detach              |  `SCRL + d`   |
 | Split screen        |  `SCRL & |`   |
 | Next screen         | `SCRL & TAB`  |
@@ -1263,9 +1264,16 @@ Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will gr
 | Create window       |  `SCRL & C`   |
 | Next window         |  `SCRL & n`   |
 | Previous window     |  `SCRL & p`   |
+| Copy mode           |  `SCRL & [`   |
+| Paste buffer        |  `SCRL & ]`   |
+| Log current screen  |  `SCRL & h`   |
+| Start/end logging   |  `SCRL & H`   |
+| Lock screen         |  `SCRL & x`   |
 | Help                |  `SCRL & ?`   |
 
 Note: Next and previous window will change windows inside current screen. Also, close screen will not close the window it is displaying.
+
+Note: In copy mode, navigate as in Vim. To copy text, trigger select with space or return key.
 
 #### Create session
 
@@ -1652,18 +1660,36 @@ Similarly, you can use `minicom`.
 
 ## Load file via serial console
 
-If using minicom, you can easily load file to memory address by using:
+If using Ubuntu, make sure to run:
+
+```shell
+sudo apt install lrzsz
+```
+
+You can easily load file to memory address by using:
 
 ```
 U-Boot> loady <addr>
 ```
 
-You can then select file via `minicom`.
+U-Boot will then wait for transfer.
 
-Note: If using Ubuntu, make sure to run:
+### Minicom
+
+While U-Boot is waiting for transfer, go to help (`CTRL+a & z`), as indicated in Minicom status bar below. Then, type `s` to send the file, and choose `ymodem`. Here you can select the file to upload via the serial console to U-Boot.
+
+### GNU Screen
+
+While U-Boot is waiting for transfer, go to Screen console and type:
+
+```
+exec !! sx path/to/file
+```
+
+Note: If using `socat`, you can transfer the file from shell, e.g.:
 
 ```shell
-sudo apt install lrzsz
+sx path/to/file | socat FILE:/dev/ttyUSB0,b115200,raw -
 ```
 
 ## Execute binary
@@ -1675,6 +1701,18 @@ go <addr>
 ```
 
 Note: For Linux kernel and similar programs which require line parameters, you should use `bootm`.
+
+## Read from memory address
+
+To read a byte from memory address, use:
+
+```
+md.b <address> <number_of_objects>
+```
+
+Note: All arguments are in hexadecimal.
+
+Note: You can also use `md.w`, `md.l` and `md.q` to read 2, 4 and 8 bytes, respectively.
 
 # ARM Assembly
 
@@ -1704,3 +1742,16 @@ BIC Rd, Rs <=> Rd = Rd & !Rs
 
 This is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
 
+### compare and branch if zero
+
+```
+CBZ Rs, label <=> if (Rs == 0) goto label
+```
+
+### read system register
+
+```
+MRS Rd, register
+```
+
+Note: You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers).
