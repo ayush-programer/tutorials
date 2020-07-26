@@ -54,6 +54,7 @@ setxkbmap <layout>
 | `$*` | arguments (to pass to another script)   |
 | `$@` | arguments (to iterate over)             |
 | `$#` | number of arguments                     |
+| `$$` | current process pid                     |
 
 ## System info
 
@@ -1264,6 +1265,7 @@ Note: Similarly, you can use `ramfs`; the only difference is the `ramfs` will gr
 | Create window       |  `SCRL & C`   |
 | Next window         |  `SCRL & n`   |
 | Previous window     |  `SCRL & p`   |
+| Kill window         |  `SCRL & k`   |
 | Copy mode           |  `SCRL & [`   |
 | Paste buffer        |  `SCRL & ]`   |
 | Log current screen  |  `SCRL & h`   |
@@ -1356,12 +1358,13 @@ Note: The `&` means here "followed by" and not "at the same time" (which is `+`)
 
 ### Commands
 
-|    command    |     action      |
-|---------------|-----------------|
-| `:e <fname>`  | open file       |
-|     `:w`      | save changes    |
-|     `:q`      | quit            |
-|`:colorscheme` | set colorscheme |
+|      command      |     action         |
+|-------------------|--------------------|
+|   `:e <fname>`    | open file          |
+|       `:w`        | save changes       |
+|       `:q`        | quit               |
+|  `:colorscheme`   | set colorscheme    |
+| `:Explore <path>` | explore in `netrw` |
 
 ### Edit via SSH
 
