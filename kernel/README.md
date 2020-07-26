@@ -269,7 +269,7 @@ Similarly, you can declare it by using:
 DECLARE_PER_CPU(type, name);
 ```
 
-Note: Per-CPU variables can also be exported.
+Typically, you would use `DEFINE_PER_CPU` as the very definition, and `DECLARE_PER_CPU` similarly to `extern` keyword.
 
 #### Assign and get value
 

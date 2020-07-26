@@ -1353,18 +1353,35 @@ Note: You don't have to specify PID, using only `screen -r` will attach you to t
 | Previous occurrence |      `#`      |
 | Repeat last search  |      `n`      |
 | Prev. last search   |      `N`      |
+| Show current file   |`1 & CTRL + g` |
+| Curr. file and buff.|`2 & CTRL + g` |
 
 Note: The `&` means here "followed by" and not "at the same time" (which is `+`).
 
 ### Commands
 
+|      command      |              action            |
+|-------------------|--------------------------------|
+|   `:e <fname>`    | open file                      |
+|      `:pwd`       | get current folder             |
+|    `:cd <dir>`    | change directory               |
+|    `:lcd <dir>`   | change dir. for current window |
+|       `:w`        | save changes                   |
+|       `:q`        | quit                           |
+|  `:colorscheme`   | set colorscheme                |
+| `:Explore <path>` | explore in `netrw`             |
+
+### Buffers
+
 |      command      |     action         |
 |-------------------|--------------------|
-|   `:e <fname>`    | open file          |
-|       `:w`        | save changes       |
-|       `:q`        | quit               |
-|  `:colorscheme`   | set colorscheme    |
-| `:Explore <path>` | explore in `netrw` |
+| `:ls`, `:buffers` | list buffers       |
+|  `:buffer <num>`  | open buffer        |
+|     `:bnext`      | next buffer        |
+|     `:bprev`      | previous buffer    |
+|   `:bdel <num>`   | delete buffer      |
+
+Note: You can delete all buffers and edit the last with `:%bd|e#`.
 
 ### Edit via SSH
 
