@@ -1523,6 +1523,14 @@ To unstage a file:
 git reset -- <filename>
 ```
 
+## Apply patch to single file
+
+You can use `include` argument to filter the files to which the patch will be applied:
+
+```shell
+git apply --include=<path-pattern> <patch-file>
+```
+
 # GDB basics
 
 To insert a breakpoint by line number:
