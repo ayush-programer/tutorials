@@ -107,6 +107,15 @@ Drivers for sounds cards etc.
 
 Code that builds a cpio-format archive containing a root filesystem image.
 
+## Kernel image formats
+
+ * vmlinux - ELF kernel binary 
+ * Image - generic kernel binary
+ * zImage - compressed kernel binary (by gzip, self-extracting, low-end memory)
+ * vmlinuz - same as zImage
+ * bzImage - "big zImage", decompresses kernel to high-end memory (use for large kernels)
+ * uImage - U-Boot wrapper for Image
+
 ## Kernel version
 
 To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
