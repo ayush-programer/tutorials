@@ -1742,11 +1742,42 @@ Note: All arguments are in hexadecimal.
 
 Note: You can also use `md.w`, `md.l` and `md.q` to read 2, 4 and 8 bytes, respectively.
 
-# ARM Assembly
+# ARM Architecture
 
-## commands
+The best place to find information on ARM (Advanced RISC Machine) Architecture is [here](https://developer.arm.com/documentation/).
 
-### add
+## ARMv7
+
+A32 is the instruction set named ARM in the ARMv7 architecture; A32 uses 32-bit fixed-length instructions.
+
+## ARMv8
+
+Aarch64 and Aarch32 are the 64-bit and 32-bit general-purpose register width states of the ARMv8 architecture. Aarch32 is broadly compatible with the ARMv7-A architecture.
+
+### Registers
+
+|  register  |           purpose            |
+|------------|------------------------------|
+|     x0     | parameter / temp. / result   |
+|  x1 - x7   | parameter / temporary        |
+|     x9     | indirect result location     |
+|  x9 - x15  | scratch                      |
+| x16 - x17  | intra-procedure-call / temp. |
+|    x18     | platform register / temp.    |
+| x19 - x28  | callee-saved / temporary     |
+|    x29     | frame pointer                |
+|    x30     | link register                |
+|     sp     | stack pointer                |
+
+Note: Sometimes, "non-volatile" is used as synonym for "callee-saved".
+
+Note: More information on register and procedure conventions (AAPCS64) for AArch64 can be found [here](https://developer.arm.com/documentation/ihi0055/c/).
+
+### A64
+
+A64 is the instruction set available in AArch64 state.
+
+#### add
 
 ```
 ADD Rd, Rm, Rn <=> Rd = Rm + Rn
@@ -1754,7 +1785,7 @@ ADD Rd, Rm, Rn <=> Rd = Rm + Rn
 
 `Rn` is flexible.
 
-### multiply
+#### multiply
 
 ```
 MUL Rd, Rm, Rn <=> Rd = Rm * Rn
@@ -1762,7 +1793,7 @@ MUL Rd, Rm, Rn <=> Rd = Rm * Rn
 
 `Rn` is not flexible.
 
-### bit clear
+#### bit clear
 
 ```
 BIC Rd, Rs <=> Rd = Rd & !Rs
@@ -1770,13 +1801,13 @@ BIC Rd, Rs <=> Rd = Rd & !Rs
 
 This is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
 
-### compare and branch if zero
+#### compare and branch if zero
 
 ```
 CBZ Rs, label <=> if (Rs == 0) goto label
 ```
 
-### read system register
+#### read system register
 
 ```
 MRS Rd, register
