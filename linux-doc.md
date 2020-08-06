@@ -1814,3 +1814,7 @@ MRS Rd, register
 ```
 
 Note: You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers).
+
+# x86 Architecture
+
+You can find extensive documentation on x86 architecture [here](https://software.intel.com/content/www/us/en/develop/articles/intel-sdm.html).
