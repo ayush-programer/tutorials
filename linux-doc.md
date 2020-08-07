@@ -1647,7 +1647,7 @@ dtparam=i2c_arm=on
 dtparam=spi=on
 ```
 
-### Script for running Raspbian
+### Booting Raspbian
 
 Create `rpi3-bootscript.txt`:
 
@@ -1675,6 +1675,43 @@ sudo mkimage -A arm64 -O linux -T script -d ~/rpi3-bootscript.txt ~/boot.scr
 ```
 
 Note: In general, you should be able to use `source` from U-Boot to load the script.
+
+Note: If you don't have `initrd.img`, you can omit loading it to memory and then use `booti $kernel_addr_r - $fdt_addr_r` instead.
+
+### Running custom Yocto RPi image
+
+Before building the project, to use the serial console, add the following in the `conf/local.conf` in your Poky build folder:
+
+```
+RPI_USE_U_BOOT = "1"
+ENABLE_UART = "1"
+```
+
+After the build is complete, find the `Image` file from the Poky build folder and copy it to bootfs partition of the SD card:
+
+```shell
+find tmp/deploy/images/<rpi_image>/ -name Image
+```
+
+Then, find the rootfs file and extract it to rootfs partition of the SD card:
+
+```shell
+find tmp/deploy/images/<rpi_image>/ -name *.tar.bz2
+tar -C <dest_dir> -xvjf <path_to_rootfs_bz>
+```
+
+Finally, find the Device Tree Blob / Binary in the build folder by typing:
+
+```shell
+find tmp/deploy/images/<rpi_image>/ -name *.dtb
+```
+
+Select the one for the board you need. After loading the kernel and the Device Tree Blob, either via `fatload` or `loady`, type the following in U-Boot:
+
+```
+setenv bootargs 8250.nr_uarts=1 console=ttyS0,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rootwait
+booti $kernel_addr_r - $fdt_addr_r
+```
 
 ## Serial console
 
@@ -1760,7 +1797,7 @@ Aarch64 and Aarch32 are the 64-bit and 32-bit general-purpose register width sta
 |------------|------------------------------|
 |     x0     | parameter / temp. / result   |
 |  x1 - x7   | parameter / temporary        |
-|     x9     | indirect result location     |
+|     x8     | indirect result location     |
 |  x9 - x15  | scratch                      |
 | x16 - x17  | intra-procedure-call / temp. |
 |    x18     | platform register / temp.    |

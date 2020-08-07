@@ -279,3 +279,21 @@ The same `.cfg` file can be obtained from Linux kernel repository by typing the 
 scripts/diffconfig -m <oldconf> <newconf> > fragment.cfg
 ```
 
+## Raspberry Pi Yocto
+
+First, clone Poky and `meta-raspberrypi`:
+
+```shell
+git clone -b warrior git://git.yoctoproject.org/poky
+cd poky
+git clone -b warrior git://git.yoctoproject.org/meta-raspberrypi
+```
+
+Note: Instead of `warrior` you can use some other branch.
+
+After running `source oe-init-build-env`, add `meta-raspberrypi` to `BBLAYERS` in `conf/bblayers.conf`. Then, in the `conf/local.conf` set the `MACHINE` variable to desired RPi machine; you can find the full list of supported Raspberry Pi machines in `meta-raspberrypi/docs/layer-contents.md`. In the same file, it may also be necessary to append:
+
+```
+GPU_MEM = "16"
+```
+
