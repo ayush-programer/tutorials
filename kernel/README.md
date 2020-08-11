@@ -1,10 +1,10 @@
-# Linux Kernel Hacking
+# Introduction
 
-Note: Just for convenience, link references to kernel source code will be for version `5.0`.
+Just for convenience, link references to kernel source code will be for version `5.0`.
 
-## Kernel source folder structure
+# Kernel source folder structure
 
-### `arch/`
+## `arch/`
 
 Architecture specific code:
 
@@ -12,51 +12,51 @@ Architecture specific code:
 + interrupt handling
 + early initialization
 
-### `crypto/`
+## `crypto/`
 
 Cryptographic API used by kernel itself.
 
-### `drivers/`
+## `drivers/`
 
 Code to run peripheral devices:
 
 + video
 + low-level SCSI
 
-#### `drivers/net`
+### `drivers/net`
 
 Network card drivers.
 
-### `fs/`
+## `fs/`
 
 Contains:
 
 + generic filesystem code (Virtual File System)
 + code for each different filesystem (e.g. `ext2`)
 
-### `include/`
+## `include/`
 
 Header files.
 
-#### `include/asm-<arch>/`
+### `include/asm-<arch>/`
 
 Architecture specific header files.
 
-### `init/`
+## `init/`
 
 Code for creating early userspace and:
 
 + `main.c`
 + `version.c` - defines Linux version string
 
-### `ipc/`
+## `ipc/`
 
 Inter Process Communication:
 
 + shared memory
 + semaphores
 
-### `kernel/`
+## `kernel/`
 
 Generic kernel level code:
 
@@ -65,7 +65,7 @@ Generic kernel level code:
 + scheduler
 + signal handling
 
-### `lib/`
+## `lib/`
 
 Routines of generic usefulness:
 
@@ -73,7 +73,7 @@ Routines of generic usefulness:
 + debugging routines
 + line parsing
 
-### `mm/`
+## `mm/`
 
 High level memory management code with:
 
@@ -83,31 +83,31 @@ High level memory management code with:
 + memory allocation
 + swap out of pages in RAM
 
-### `net/`
+## `net/`
 
 High-level networking code (low-level network drivers pass packets here).
 
-#### `net/core/`
+### `net/core/`
 
 Code for most of different network protocols.
 
-### `scripts/`
+## `scripts/`
 
 Scripts useful in building the kernel.
 
-### `security/`
+## `security/`
 
 Code for different Linux security models.
 
-### `sound/`
+## `sound/`
 
 Drivers for sounds cards etc.
 
-### `usr/`
+## `usr/`
 
 Code that builds a cpio-format archive containing a root filesystem image.
 
-## Kernel image formats
+# Kernel image formats
 
  * vmlinux - ELF kernel binary 
  * Image - generic kernel binary
@@ -116,7 +116,7 @@ Code that builds a cpio-format archive containing a root filesystem image.
  * bzImage - "big zImage", decompresses kernel to high-end memory (use for large kernels)
  * uImage - U-Boot wrapper for Image
 
-## Kernel version
+# Kernel version
 
 To get kernel version, you can use the `LINUX_VERSION_CODE` macro. You can compare that against target kernel version (assume it is `v4.15.0`) that can be obtained in proper format by using `KERNEL_VERSION(4,15,0)`.
 
@@ -128,15 +128,15 @@ char *kernel_version = utsname()->release;
 
 Note: For the former method include `linux/version.h` and for the latter `linux/utsname.h`.
 
-### Preemption info
+## Preemption info
 
 Short summary of low latency and RT kernel versions can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
 
-## Boot parameters
+# Boot parameters
 
 You can find information on boot parameters [here](https://elixir.bootlin.com/linux/v5.0/source/Documentation/admin-guide/kernel-parameters.txt).
 
-## printk
+# printk
 
 To print a message to DMESG, use:
 
@@ -160,7 +160,7 @@ seq_printf("struct seq_file *sfile, const char *fmt, ...);
 
 This function will write to a specified file instead of `dmesg`. It is imported from `linux/seq_file.h`. See tutorial on `seq_file` [here](#the-seq-file).
 
-### Log level
+## Log level
 
 | lvl |     string     |                     meaning                     |
 |-----|----------------|-------------------------------------------------|
@@ -185,7 +185,7 @@ To get full meaning of the four numbers, use:
 cat /proc/sys/kernel/printk | awk '{ OFS="|"; print "current loglevel:" OFS $1; print "default loglevel:" OFS $2; print "minimum loglevel:" OFS $3; print "boot-time default loglevel:" OFS $4;  }' | column -t -s'|'
 ```
 
-### Rate limit of printk
+## Rate limit of printk
 
 Note: You can also limit the number of `printk` messages:
 
@@ -207,7 +207,7 @@ The rate limit can be customized via the two files in `/proc/sys/kernel`:
 | `printk_ratelimit`       | number of seconds to wait before re-enabling messages |
 | `printk_ratelimit_burst` | number of messages received before rate-limiting      |
 
-## Configuration
+# Configuration
 
 To configure the kernel, run:
 
@@ -217,7 +217,7 @@ make menuconfig
 
 Note: You can find information on all kernel configuration options [here](https://elixir.bootlin.com/linux/v5.0/source/Kconfig).
 
-### Expose configuration file
+## Expose configuration file
 
 To expose the kernel configuration file in `/proc/config.gz`, the following two options in kernel configuration should be considered:
 
@@ -226,7 +226,7 @@ CONFIG_IKCONFIG
 CONFIG_IKCONFIG_PROC
 ```
 
-## Processes
+# Processes
 
 You can iterate over process list:
 
@@ -242,7 +242,7 @@ read_unlock(&tasklist_lock);
 
 Note: You can find definition of `task_struct` in `linux/sched.h`, specifically [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/sched.h#L592). This struct is initialized statically in `init/init_task.c`, and can be found [here](https://elixir.bootlin.com/linux/v5.0/source/init/init_task.c#L57).
 
-## CPUs
+# CPUs
 
 You can iterate over CPUs with one of macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/cpumask.h#L777):
 
@@ -256,15 +256,15 @@ Note: `for_each_online_cpu()` should be used within a `get_online_cpus()` and `p
 
 Note: You can also find out if CPU is online with `cpu_online(cpu)`.
 
-### Current CPU
+## Current CPU
 
 To get current CPU id, use `smp_processor_id()`. Be careful, however, as preemption has to be disabled before using it with `preempt_disable()` (and later reenabled with `preempt_enable()`).
 
-### Per-CPU variables
+## Per-CPU variables
 
 To use per-cpu variables, first include `linux/percpu.h`.
 
-#### Define and declare
+### Define and declare
 
 You can define a per-cpu variable using the following macro:
 
@@ -280,7 +280,7 @@ DECLARE_PER_CPU(type, name);
 
 Typically, you would use `DEFINE_PER_CPU` as the very definition, and `DECLARE_PER_CPU` similarly to `extern` keyword.
 
-#### Assign and get value
+### Assign and get value
 
 To get from or assign a value to a per-cpu variable, use:
 
@@ -294,7 +294,7 @@ This can be used also as an `lvalue`, so you can type:
 per_cpu(variable, cpu) = 0;
 ```
 
-#### Per-CPU section
+### Per-CPU section
 
 Preemption usually has to be disabled when dealing with per-CPU variables; for that, you can use:
 
@@ -303,11 +303,11 @@ Preemption usually has to be disabled when dealing with per-CPU variables; for t
 
 Note: You can find out more on per-CPU variables [here](https://lwn.net/Articles/22911/).
 
-## Atomics
+# Atomics
 
 Find out more about atomics [here](https://www.infradead.org/~mchehab/kernel_docs/core-api/atomic_ops.html).
 
-## Permissions
+# Permissions
 
 For `umode_t`, the values from `linux/stat.h` (found [here](https://elixir.bootlin.com/linux/latest/source/include/linux/stat.h)):
 
@@ -340,7 +340,7 @@ You can find the rest of the definitions in `linux/uapi/stat.h` on this [link](h
 
 These values correspond to user, group and other privilege levels (read/write/execute).
 
-## seq file
+# seq file
 
 First, you have to conform to these function pointers (as defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/seq_file.h#L32)):
 
@@ -376,13 +376,13 @@ Note: The functions `seq_read`, `seq_lseek` and `seq_release` are defined in the
 
 See the `seqf-ex` folder for a simple introductory example.
 
-## procfs
+# procfs
 
 The proc filesystem is exposed via the `/proc` folder. Using debug filesystem is a better alternative in modern kernel programming.
 
 Note: To use in kernel development, include `linux/proc_fs.h`.
 
-### Create file
+## Create file
 
 To create a file in the procfs, you can use the following function:
 
@@ -392,7 +392,7 @@ struct proc_dir_entry *proc_create(const char *name, umode_t mode,
 				   const struct file_operations *proc_fops);
 ```
 
-### Create folder
+## Create folder
 
 To create a subfolder in the proc filesystem, use:
 
@@ -401,7 +401,7 @@ struct proc_dir_entry* proc_mkdir(const char *name,
 				  struct proc_dir_entry *parent)
 ```
 
-### Remove entry
+## Remove entry
 
 To remove the file, or folder, use:
 
@@ -411,7 +411,7 @@ void remove_proc_entry(const char *name, struct proc_dir_entry *parent);
 
 Note: Example usage of proc filesystem can be found in the `seqfs-ex` example.
 
-## debugfs
+# debugfs
 
 The debug filesystem is usually mounted to `/sys/kernel/debug`. You can mount it manually, if necessary:
 
@@ -421,7 +421,7 @@ mount -t debugfs none /sys/kernel/debug/
 
 Note: For use in kernel include `linux/debugfs.h` header file.
 
-### Create file
+## Create file
 
 To create a file in the debugfs, use:
 
@@ -431,7 +431,7 @@ struct dentry *debugfs_create_file(const char *name, umode_t mode,
 				   const struct file_operations *fops);
 ```
 
-### Create folder
+## Create folder
 
 To create a subfolder in the debug filesystem, use:
 
@@ -440,7 +440,7 @@ struct dentry *debugfs_create_dir(const char *name,
 				  struct dentry *parent);
 ```
 
-### Remove entry
+## Remove entry
 
 To remove an entry, use:
 
@@ -450,7 +450,7 @@ void debugfs_remove(struct dentry *dentry);
 
 Note: Example usage of debugfs can be found in `relay-ex` example.
 
-## Relay channel
+# Relay channel
 
 You can find out more about the relay channel [here](http://relayfs.sourceforge.net/relayfs.txt). Also, include `linux/relay.h` header file.
 
@@ -490,7 +490,7 @@ relay_close(struct rchan* rchan);
 
 Note: See the `relay-ex` for a simple relay channel example.
 
-## Current process
+# Current process
 
 Pointer to the `task struct` of the current process is `current`; so mostly anywhere in the kernel code, you can write things such as:
 
@@ -500,7 +500,7 @@ printk(KERN_INFO "%s, %d", current->comm, current->pid);
 
 Note: This is imported from `linux/sched.h`.
 
-## Container of a variable
+# Container of a variable
 
 Assume you have a structure like this:
 
@@ -523,7 +523,7 @@ struct test_struct *test_ptr;
 test_ptr = container_of(var_k_ptr, struct test_struct, var_k);
 ```
 
-## Exporting symbols
+# Exporting symbols
 
 If you want the symbols, i.e. functions, variables, etc. to be available to other parts of kernel or modules, you can use:
 
@@ -539,7 +539,7 @@ EXPORT_SYMBOL_GPL(name);
 
 This one will make the symbol available to GPL-licensed modules only.
 
-## kmalloc
+# kmalloc
 
 The general syntax is:
 
@@ -549,9 +549,9 @@ kmalloc(size_t size, gfp_t flags);
 
 Import the header `linux/slab.h`.
 
-## User-space and kernel-space
+# User-space and kernel-space
 
-### Compiler information
+## Compiler information
 
 In `C`, you can easily distinguish whether your code is run in kernel-space or user-space context with `__KERNEL__` macro:
 
@@ -562,7 +562,7 @@ In `C`, you can easily distinguish whether your code is run in kernel-space or u
 	/* code for user-space */
 ```
 
-### Data exchange
+## Data exchange
 
 Import `linux/uaccess.h`.
 
@@ -580,13 +580,13 @@ To copy from kernel-space to user-space:
 unsigned long copy_to_user (void __user* to, const void* from, unsigned long n);
 ```
 
-## Synchronization
+# Synchronization
 
-### Semaphores / mutexes
+## Semaphores / mutexes
 
 Semaphores are defined in `linux/semaphore.h`.
 
-#### Initialization
+### Initialization
 
 To initialize, use:
 
@@ -608,7 +608,7 @@ void init_MUTEX(struct semaphore *sem);
 void init_MUTEX_LOCKED(struct semaphore *sem);
 ```
 
-#### Locking
+### Locking
 
 Each of the following functions takes `struct semaphore*` as an argument:
 
@@ -622,11 +622,11 @@ Each of the following functions takes `struct semaphore*` as an argument:
 
 Note: Common pattern with `down_interruptible` in device drivers is to return `-ERESTARTSYS` (to restart the call) or `-EINTR` (if restarting is impossible).
 
-### Reader / writer semaphores
+## Reader / writer semaphores
 
 Include `linux/rwsem.h`.
 
-#### Initialization
+### Initialization
 
 To initialize the `rwsem`, use:
 
@@ -634,7 +634,7 @@ To initialize the `rwsem`, use:
 void init_rwsem(struct rw_semaphore* sem);
 ```
 
-#### Locking
+### Locking
 
 All of the following functions take `struct rw_semaphore*` as argument:
 
@@ -648,11 +648,11 @@ All of the following functions take `struct rw_semaphore*` as argument:
 |      `up_write`      | writer unlock                      | void |
 |  `downgrade_write`   | allow other readers after write    | void |
 
-### Spinlocks
+## Spinlocks
 
 Spinlocks have better performance than semaphores and can be used in code that cannot sleep (interrupt handlers). Include `linux/spinlock.h`.
 
-#### Initialization
+### Initialization
 
 To initialize spinlock at compile time:
 
@@ -666,7 +666,7 @@ Initialization at runtime:
 void spin_lock_init(spinlock_t* lock);
 ```
 
-#### Locking
+### Locking
 
 All of the following functions have `void` return type and take `spinlock_t*` as argument, except `spin_lock_irqsave` and `spin_lock_irqrestore` which take `unsigned long flags` as second argument:
 
@@ -689,7 +689,7 @@ Note: Any code holding a spinlock must be atomic, i.e. it cannot sleep.
 
 Note: `spin_lock_irqsave` and `spin_lock_irqrestore` must be called in the same function (due to architecture-dependent behaviour). If you are sure nothing else might have already disabled interrupts (or, if you want to be sure that interrupts are enabled when spinlock is released), it's better to use `spin_lock_irq` and `spin_unlock_irq`.
 
-### Completion
+## Completion
 
 Include `linux/completion.h` then define and initialize:
 
@@ -721,11 +721,11 @@ Note: If using `complete_all`, completion must be reinitialized with:
 INIT_COMPLETION(struct completion c);
 ```
 
-## Data structures
+# Data structures
 
-### Linked lists
+## Linked lists
 
-#### Definition
+### Definition
 
 This is a definition of `list_head` (include it from `linux/types.h`):
 
@@ -748,7 +748,7 @@ struct node_el {
 
 This is why definition of linked list is "upside down" in the kernel, i.e. why `list_head` is inside `struct node_el`, and not vice versa (this is really more of a graph than a linked list). The rest of linked list code can be found in `include/linux/list.h`.
 
-#### Initialization
+### Initialization
 
 To declare and initialize the linked list:
 
@@ -765,7 +765,7 @@ LIST_HEAD(my_list);
 
 This will initialize the list at compile time.
 
-#### Add an element
+### Add an element
 
 To add an element to a linked list, first define a pointer to `struct node_el`:
 
@@ -785,7 +785,7 @@ This is great for implementing stacks. For queues, try:
 list_add_tail(&new_el->list1, &my_list);
 ```
 
-#### Iterate over list
+### Iterate over list
 
 You can iterate over a list by using this simple pattern:
 
@@ -810,7 +810,7 @@ list_for_each_safe(ptr, tmp, &my_list) {
 }
 ```
 
-#### Deinitialize
+### Deinitialize
 
 To delete an element from the list:
 
@@ -830,11 +830,11 @@ list_for_each_safe(ptr, tmp, &my_list) {
 }
 ```
 
-### kfifo
+## kfifo
 
 Defined in `linux/kfifo.h` (link is [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/kfifo.h)), kfifo is a lockless circular buffer.
 
-#### Initialization
+### Initialization
 
 To define and initialize kfifo during compile time, use:
 
@@ -856,7 +856,7 @@ With runtime approach you also need to allocate the buffer with the following ma
 kfifo_alloc(&fifo, size, gfp_mask);
 ```
 
-#### Adding data
+### Adding data
 
 You can add a single element to kfifo with:
 
@@ -870,7 +870,7 @@ Similarly, you can copy data from another buffer by using:
 kfifo_in(&fifo, buffer, count);
 ```
 
-#### Obtaining data
+### Obtaining data
 
 To get kfifo length, use:
 
@@ -892,7 +892,7 @@ kfifo_out(&fifo, buffer, count);
 
 You can also skip the first element with `kfifo_skip(&fifo)` and see the value of the first element in kfifo without removing it by using `kfifo_peek(&fifo, &element)`.
 
-#### Kernel-space and user-space
+### Kernel-space and user-space
 
 You can copy kfifo directly to user-space with:
 
@@ -908,7 +908,7 @@ kfifo_from_user(&fifo, buffer, count, &copied);
 
 Note: On success, both of these macros return zero, and will put number of copied elements in `unsigned int copied` variable.
 
-#### Deinitialization
+### Deinitialization
 
 If kfifo has been initialized at runtime, you need to free it with:
 
@@ -916,11 +916,11 @@ If kfifo has been initialized at runtime, you need to free it with:
 kfifo_free(&fifo);
 ```
 
-## High Resolution Timer
+# High Resolution Timer
 
 First, include `linux/hrtimer.h`.
 
-### Initialization
+## Initialization
 
 To initialize `hrtimer`, use:
 
@@ -959,7 +959,7 @@ You can find options for `hrtimer_mode` [here](https://elixir.bootlin.com/linux/
  */
 ```
 
-### Set the callback
+## Set the callback
 
 Once `struct hrtimer* my_timer` has been initialized, define the callback as:
 
@@ -989,7 +989,7 @@ Then, simply add the callback to the `struct hrtimer* my_timer` by using:
 my_timer.function = timer_callback;
 ```
 
-### Start hrtimer
+## Start hrtimer
 
 To start the `hrtimer`, use the following function (defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/hrtimer.h#L384)):
 
@@ -1014,7 +1014,7 @@ static inline ktime_t ktime_set(const s64 secs, const unsigned long nsecs)
 
 This function is defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/ktime.h#L30).
 
-### Cancel
+## Cancel
 
 To cancel the timer, use:
 
@@ -1022,9 +1022,9 @@ To cancel the timer, use:
 int hrtimer_cancel(struct hrtimer *timer);
 ```
 
-## Kernel modules
+# Kernel modules
 
-### Commands and info
+## Commands and info
 
 |    comm    |        meaning       |
 |------------|----------------------|
@@ -1046,7 +1046,7 @@ List of kernel modules to be loaded at boot-time:
 cat /etc/modules
 ```
 
-### "Hello world" module
+## "Hello world" module
 
 Create a project folder with following files:
 
@@ -1146,9 +1146,9 @@ If instead of `S_IRUGO` there was `0`, this file would not be exposed, i.e. user
 | `charp`     | `ulong`     | `ushort`    |
 | `int`       | `long`      | `intarray`  |
 
-### Char driver
+## Char driver
 
-#### Major and minor numbers
+### Major and minor numbers
 
 You can see the list of character devices on your system along with their major and minor device numbers:
 
@@ -1165,7 +1165,7 @@ int print_dev_t(char* buffer, dev_t dev);
 char* format_dev_t(char* buffer, dev_t dev);
 ```
 
-#### File operations
+### File operations
 
 First step is to define the `file_operations` struct and corresponding functions. This is minimal recommended:
 
@@ -1188,11 +1188,11 @@ Note: You can find the full list of `struct file_operations` function pointers [
 
 Note: For `llseek` implementation, check out macros defined [here](https://elixir.bootlin.com/linux/v5.0/source/include/uapi/linux/fs.h#L40).
 
-#### The file structure
+### The file structure
 
 You can find the reference on `struct file` [here](https://elixir.bootlin.com/linux/v5.0/source/include/linux/fs.h#L901).
 
-## Add command to `sysctl`
+# Add command to `sysctl`
 
 You can add new commands to `sysctl` for kernel fine-tuning. In the kernel repo, open the `kernel/sysctl.c` file. There, you will see a list of `sysctl` options, so copying one of them and appending it is the way to go. For example, add this to the end of `kern_table[]` in `sysctl.c`:
 
@@ -1222,9 +1222,9 @@ int __read_mostly example_control = 0;
 
 Note: The `__read_mostly` keyword only tells the compiler it will rarely be written (and more often read).
 
-## Syscalls
+# Syscalls
 
-### Add new syscall
+## Add new syscall
 
 First, create a folder `hello` in kernel repo root folder containing two files:
 
@@ -1266,7 +1266,7 @@ asmlinkage long sys_hello(void);
 
 The rest is platform-specific.
 
-#### arm
+### arm
 
 First, find any `CALL(sys_ni_syscall)` entry in `arch/arm/kernel/calls.S` and replace it with `CALL(sys_hello)`. You can see what system call number it will be based on commented out padding numbers. For example, our system call number for this example will be `313`:
 
@@ -1301,13 +1301,13 @@ __SYSCALL(__NR_ioprio_set, sys_ioprio_set)
 
 Note that all of this might vary, but could give you a good insight in how to add a new system call.
 
-#### x86
+### x86
 
 Just edit `arch/x86/syscalls/syscall_64.tbl` and arch/x86/syscalls/syscall_32.tbl`, and add your system call to the end of the list.
 
-### Syscall from shell
+## Syscall from shell
 
-#### Using Python
+### Using Python
 
 For example, on `x86` architecture, you can try:
 
@@ -1325,7 +1325,7 @@ $ python -c "import ctypes; print ctypes.CDLL(None).syscall(39);"
 
 Note: This requires the `ctypes` library so it is not guaranteed to work.
 
-#### Using Perl
+### Using Perl
 
 In lieu of the Python examples above, you can also try the following:
 
@@ -1341,7 +1341,7 @@ $ perl -e 'print syscall(39);'
 13155
 ```
 
-### Syscall in C
+## Syscall in C
 
 This is an example of a system call in C:
 
@@ -1452,3 +1452,5 @@ Note: You can read more about lockdep [here](https://www.kernel.org/doc/Document
 
 * [Linux Insides](https://0xax.gitbooks.io/linux-insides/)
 * [Linux Kernel Labs](https://linux-kernel-labs.github.io/refs/heads/master/index.html)
+
+
