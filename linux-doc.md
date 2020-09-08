@@ -247,7 +247,7 @@ du -sh <folder>
 |   `-n`    | don't add newline           |
 |   `-e`    | interpret escape characters |
 
-Note: From my experience this is depends on the shell (e.g. works on `bash`, but not `sh`).
+Note: From my experience this depends on the shell (e.g. works in `bash`, but not in `sh`).
 
 Sometimes you will have to do an echo as a superuser. It is best accomplished by:
 
@@ -1793,20 +1793,25 @@ Aarch64 and Aarch32 are the 64-bit and 32-bit general-purpose register width sta
 
 ### Registers
 
-|  register  |           purpose            |
-|------------|------------------------------|
-|     x0     | parameter / temp. / result   |
-|  x1 - x7   | parameter / temporary        |
-|     x8     | indirect result location     |
-|  x9 - x15  | scratch                      |
-| x16 - x17  | intra-procedure-call / temp. |
-|    x18     | platform register / temp.    |
-| x19 - x28  | callee-saved / temporary     |
-|    x29     | frame pointer                |
-|    x30     | link register                |
-|     sp     | stack pointer                |
+|   register   |             purpose              |
+|--------------|----------------------------------|
+|     `x0`     | parameter / temporary / result   |
+|  `x1 - x7`   | parameter / temporary            |
+|     `x8`     | indirect result location         |
+|  `x9 - x15`  | scratch                          |
+| `x16 - x17`  | intra-procedure-call / temporary |
+|    `x18`     | platform register / temporary    |
+| `x19 - x28`  | callee-saved / temporary         |
+|    `x29`     | frame pointer                    |
+|    `x30`     | link register                    |
+|     `sp`     | stack pointer                    |
+|    `xzr`     | zero register                    |
 
 Note: Sometimes, "non-volatile" is used as synonym for "callee-saved".
+
+Note: Frame pointer is useful for debugging; it should point at the top of the stack for the current function. The link register is the address to which the program counter will return to after current function exits.
+
+Note: The corresponding 32-bit registers are prefixed by `w` (word) instead of `x` (extended word).
 
 Note: More information on register and procedure conventions (AAPCS64) for AArch64 can be found [here](https://developer.arm.com/documentation/ihi0055/c/).
 
@@ -1814,7 +1819,7 @@ Note: More information on register and procedure conventions (AAPCS64) for AArch
 
 A64 is the instruction set available in AArch64 state.
 
-#### add
+#### Add
 
 ```
 ADD Rd, Rm, Rn <=> Rd = Rm + Rn
@@ -1822,7 +1827,7 @@ ADD Rd, Rm, Rn <=> Rd = Rm + Rn
 
 `Rn` is flexible.
 
-#### multiply
+#### Multiply
 
 ```
 MUL Rd, Rm, Rn <=> Rd = Rm * Rn
@@ -1830,27 +1835,70 @@ MUL Rd, Rm, Rn <=> Rd = Rm * Rn
 
 `Rn` is not flexible.
 
-#### bit clear
+#### Bitwise `and`
 
 ```
-BIC Rd, Rs <=> Rd = Rd & !Rs
+and Rd, Rs <=> Rd = Rd & Rs
+```
+
+#### Bit Clear
+
+```
+bic Rd, Rs <=> Rd = Rd & !Rs
 ```
 
 This is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
 
-#### compare and branch if zero
+#### Bitwise OR
 
 ```
-CBZ Rs, label <=> if (Rs == 0) goto label
+orr Rd, Rs <=> Rd = Rd | Rs
 ```
 
-#### read system register
+#### Bitwise XOR
 
 ```
-MRS Rd, register
+eor Rd, Rs <=> Rd = Rd XOR Rs
 ```
 
-Note: You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers).
+#### Compare and Branch
+
+Compare and Branch if Zero:
+
+```
+cbz Rs, label <=> if (Rs == 0) goto label
+```
+
+Compare and Branch if Not Zero:
+
+```
+cbnz Rs, label <=> if (Rs != 0) goto label
+```
+
+### System registers
+
+You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers). Usually, each system register can be read by using:
+
+```
+mrs Rd, <register>
+```
+
+#### Multiprocessor Affinity Register
+
+Used to identify CPU cores and clusters. Read with:
+
+```
+mrs Rd, mpidr_el1
+```
+
+For example, to find out the core on which the code is running:
+
+```
+mrs x0, mpidr_el1
+and x0, x0, 0xFF
+```
+
+Register `x0` will contain core ID.
 
 # x86 Architecture
 
