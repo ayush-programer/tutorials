@@ -702,6 +702,10 @@ To find links pointing to any file with specified filename:
 find / -lname <filename>
 ```
 
+## Shell Parameter Expansion
+
+You can find out more about shell parameter expansion [here](https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html).
+
 ## Audio
 
 ### PulseAudio
@@ -1899,6 +1903,14 @@ and x0, x0, 0xFF
 ```
 
 Register `x0` will contain core ID.
+
+#### Current Exception Level Register
+
+Use the following command to get the current exception level:
+
+```
+mrs Rd, CurrentEL
+```
 
 # x86 Architecture
 
