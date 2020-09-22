@@ -1483,6 +1483,12 @@ make tags
 git ls-tree -r master --name-only
 ```
 
+## Untrack file
+
+```shell
+git rm -r --cached <file>
+```
+
 ## List incoming / outgoing commits
 
 After doing a `git fetch`, you might want to see commits that have been loaded from upstream:
@@ -1793,7 +1799,7 @@ A32 is the instruction set named ARM in the ARMv7 architecture; A32 uses 32-bit 
 
 ## ARMv8
 
-Aarch64 and Aarch32 are the 64-bit and 32-bit general-purpose register width states of the ARMv8 architecture. Aarch32 is broadly compatible with the ARMv7-A architecture.
+AArch64 and AArch32 are the 64-bit and 32-bit general-purpose register width states of the ARMv8 architecture. Aarch32 is broadly compatible with the ARMv7-A architecture.
 
 ### Registers
 
@@ -1818,6 +1824,8 @@ Note: Frame pointer is useful for debugging; it should point at the top of the s
 Note: The corresponding 32-bit registers are prefixed by `w` (word) instead of `x` (extended word).
 
 Note: More information on register and procedure conventions (AAPCS64) for AArch64 can be found [here](https://developer.arm.com/documentation/ihi0055/c/).
+
+Note: Stack pointer must point to a 16-byte aligned address (as opposed to 8-byte in AArch32).
 
 ### A64
 
