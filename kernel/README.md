@@ -916,6 +916,10 @@ If kfifo has been initialized at runtime, you need to free it with:
 kfifo_free(&fifo);
 ```
 
+# Kernel Time
+
+To get current time in nanoseconds (especially when doing measuring traces), it's best to use `ktime_get()` (the return value of `ktime_t` type can be printed out with `%lld` format specifier). For other possible functions, consult `kernel/time/time.c`, available [here](https://elixir.bootlin.com/linux/v5.0/source/kernel/time/time.c).
+
 # High Resolution Timer
 
 First, include `linux/hrtimer.h`.
