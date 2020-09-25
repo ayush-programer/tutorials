@@ -36,86 +36,38 @@ Note: Stack pointer must point to a 16-byte aligned address (as opposed to 8-byt
 
 A64 is the instruction set available in AArch64 state.
 
-### Add
+### Arithmetic operations
 
-```
-ADD Rd, Rm, Rn <=> Rd = Rm + Rn
-```
+|    instruction    |     formula     |
+|-------------------|-----------------|
+| `add Rd, Rm, Rn`  | `Rd = Rm + Rn`  |
+| `sub Rd, Rm, Rn`  | `Rd = Rm - Rn`  |
+| `mul Rd, Rm, Rn`  | `Rd = Rm * Rn`  |
 
-`Rn` is flexible.
+### Logical bitwise operations
 
-### Multiply
+|    instruction    |     formula     |
+|-------------------|-----------------|
+| `and Rd, Rm, Rn`  | `Rd = Rm & Rn`  |
+| `bic Rd, Rm, Rn`  | `Rd = Rm & ~Rn` |
+| `orr Rd, Rm, Rn`  | `Rd = Rm \| Rn` |
+| `eor Rd, Rm, Rn`  |`Rd = Rm XOR Rn` |
 
-```
-MUL Rd, Rm, Rn <=> Rd = Rm * Rn
-```
-
-`Rn` is not flexible.
-
-### Bitwise `and`
-
-```
-and Rd, Rs <=> Rd = Rd & Rs
-```
-
-### Bit Clear
-
-```
-bic Rd, Rs <=> Rd = Rd & !Rs
-```
-
-This is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
-
-### Bitwise OR
-
-```
-orr Rd, Rs <=> Rd = Rd | Rs
-```
-
-### Bitwise XOR
-
-```
-eor Rd, Rs <=> Rd = Rd XOR Rs
-```
+Note: The `bic` instruction is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
 
 ### Compare and Branch
 
-Compare and Branch if Zero:
+Compare and branch to label if Rs is zero:
 
 ```
-cbz Rs, label <=> if (Rs == 0) goto label
+cbz Rs, label
 ```
 
-Compare and Branch if Not Zero:
+Compare and branch to label if Rs is not zero:
 
 ```
-cbnz Rs, label <=> if (Rs != 0) goto label
+cbnz Rs, label
 ```
-
-## System registers
-
-You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers). Usually, each system register can be read by using:
-
-```
-mrs Rd, <register>
-```
-
-### Multiprocessor Affinity Register
-
-Used to identify CPU cores and clusters. Read with:
-
-```
-mrs Rd, mpidr_el1
-```
-
-For example, to find out the core on which the code is running:
-
-```
-mrs x0, mpidr_el1
-and x0, x0, 0xFF
-```
-
-Register `x0` will contain core ID.
 
 ## Exception Level
 
@@ -125,6 +77,14 @@ In ARMv8, there are four exception levels:
 * **EL1** - operating system
 * **EL2** - hypervisor
 * **EL3** - secure monitor (firmware)
+
+### Change Exception Level
+
+In order to change exception level, you have to:
+
+ * select the exception level and stack pointer in `spsr_elx` system register
+ * load the entry address to `elr_elx` system register
+ * call `eret`
 
 ### Hypervisor
 
@@ -180,6 +140,35 @@ Hosted hypervisor runs on top of an OS (or are part of one, like KVM is part of 
 	</tbody>
 </table>
 
+### Configuration
+
+Hypervisor is configured via [Hypervisor Configuration Register](#Hypervisor-Configuration-Register).
+
+## System registers
+
+You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers). Usually, each system register can be read by using:
+
+```
+mrs Rd, <system register>
+```
+
+### Multiprocessor Affinity Register
+
+Used to identify CPU cores and clusters. Read with:
+
+```
+mrs Rd, mpidr_el1
+```
+
+For example, to find out the core on which the code is running:
+
+```
+mrs x0, mpidr_el1
+and x0, x0, 0xFF
+```
+
+Register `x0` will contain core ID.
+
 ### Current Exception Level Register
 
 Use the following command to get the current exception level:
@@ -200,7 +189,43 @@ and \reg, \reg, #0xFF
 
 Then, you can simply get current EL to e.g. `x0` by calling `curr_el_to x0`.
 
-### Change Exception Level
+### Exception Link Register
+
+When taking an exception to ELx, holds the address to return to. For usage, see [Change Exception Level](#Change-Exception-Level) section. Defined for EL3, EL2 and EL1.
+
+### Saved Program Status Register
+
+### Secure Configuration Register
+
+Called from EL3 only. Defines the configuration of the current Security state. Most important bits are:
+
+ * NS (0): security state of EL0 and EL1
+ * IRQ (1): route IRQs to EL3
+ * SMC (7): disable SMC instructions
+ * HCE (8): enable HVC instructions
+ * RW (10): execution state at lower ELs
+
+Note: Except IRQs, it also configures whether exceptions and other various operations are taken or trapped to EL3.
+
+To set, use, e.g.:
+
+```
+msr scr_el3, Rm
+```
+
+### Hypervisor Configuration Register
+
+Can be called from EL3 and EL2. Provides configuration controls for virtualization, including defining whether various operations are trapped to EL2. The most important bits are:
+
+ * IMO (4): physical IRQ routing
+ * HCD (29): HVC instruction disable
+ * RW (31): execution state at lower ELs
+
+To set, use, e.g.:
+
+```
+msr hcr_el2, Rm
+```
 
 # Notes
 
