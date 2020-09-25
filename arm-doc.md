@@ -1,15 +1,12 @@
-# ARM Architecture
-
-
-## ARMv7
+# ARMv7
 
 A32 is the instruction set named ARM in the ARMv7 architecture; A32 uses 32-bit fixed-length instructions.
 
-## ARMv8
+# ARMv8
 
 AArch64 and AArch32 are the 64-bit and 32-bit general-purpose register width states of the ARMv8 architecture. Aarch32 is broadly compatible with the ARMv7-A architecture.
 
-### Registers
+## Registers
 
 |   register   |             purpose              |
 |--------------|----------------------------------|
@@ -35,11 +32,11 @@ Note: More information on register and procedure conventions (AAPCS64) for AArch
 
 Note: Stack pointer must point to a 16-byte aligned address (as opposed to 8-byte in AArch32).
 
-### A64
+## A64
 
 A64 is the instruction set available in AArch64 state.
 
-#### Add
+### Add
 
 ```
 ADD Rd, Rm, Rn <=> Rd = Rm + Rn
@@ -47,7 +44,7 @@ ADD Rd, Rm, Rn <=> Rd = Rm + Rn
 
 `Rn` is flexible.
 
-#### Multiply
+### Multiply
 
 ```
 MUL Rd, Rm, Rn <=> Rd = Rm * Rn
@@ -55,13 +52,13 @@ MUL Rd, Rm, Rn <=> Rd = Rm * Rn
 
 `Rn` is not flexible.
 
-#### Bitwise `and`
+### Bitwise `and`
 
 ```
 and Rd, Rs <=> Rd = Rd & Rs
 ```
 
-#### Bit Clear
+### Bit Clear
 
 ```
 bic Rd, Rs <=> Rd = Rd & !Rs
@@ -69,19 +66,19 @@ bic Rd, Rs <=> Rd = Rd & !Rs
 
 This is a "reverse mask". That is, where `Rs` is `1`, it will set the bits in `Rd` to `0`.
 
-#### Bitwise OR
+### Bitwise OR
 
 ```
 orr Rd, Rs <=> Rd = Rd | Rs
 ```
 
-#### Bitwise XOR
+### Bitwise XOR
 
 ```
 eor Rd, Rs <=> Rd = Rd XOR Rs
 ```
 
-#### Compare and Branch
+### Compare and Branch
 
 Compare and Branch if Zero:
 
@@ -95,7 +92,7 @@ Compare and Branch if Not Zero:
 cbnz Rs, label <=> if (Rs != 0) goto label
 ```
 
-### System registers
+## System registers
 
 You can find an extensive list of AArch64 System Registers [here](https://developer.arm.com/docs/ddi0595/h/aarch64-system-registers). Usually, each system register can be read by using:
 
@@ -103,7 +100,7 @@ You can find an extensive list of AArch64 System Registers [here](https://develo
 mrs Rd, <register>
 ```
 
-#### Multiprocessor Affinity Register
+### Multiprocessor Affinity Register
 
 Used to identify CPU cores and clusters. Read with:
 
@@ -120,7 +117,7 @@ and x0, x0, 0xFF
 
 Register `x0` will contain core ID.
 
-### Exception Level
+## Exception Level
 
 In ARMv8, there are four exception levels:
 
@@ -129,13 +126,13 @@ In ARMv8, there are four exception levels:
 * **EL2** - hypervisor
 * **EL3** - secure monitor (firmware)
 
-#### Hypervisor
+### Hypervisor
 
 Hypervisor provides same abstraction for the operating system as operating system provides for user-space applications.
 
-###### Type 1 (Bare-Metal) Hypervisor
+#### Type 1 (Bare-Metal) Hypervisor
 
-Bare metal hypervisor sits directly on hardware. Xenial is one example.
+Bare metal hypervisor sits directly on hardware. Xen Project is one example.
 
 <table>
 	<tbody>
@@ -158,7 +155,7 @@ Bare metal hypervisor sits directly on hardware. Xenial is one example.
 	</tbody>
 </table>
 
-##### Type 2 (Hosted) Hypervisor
+#### Type 2 (Hosted) Hypervisor
 
 Hosted hypervisor runs on top of an OS (or are part of one, like KVM is part of Linux).
 
@@ -183,7 +180,7 @@ Hosted hypervisor runs on top of an OS (or are part of one, like KVM is part of 
 	</tbody>
 </table>
 
-#### Current Exception Level Register
+### Current Exception Level Register
 
 Use the following command to get the current exception level:
 
@@ -203,7 +200,7 @@ and \reg, \reg, #0xFF
 
 Then, you can simply get current EL to e.g. `x0` by calling `curr_el_to x0`.
 
-#### Change Exception Level
+### Change Exception Level
 
 # Notes
 
