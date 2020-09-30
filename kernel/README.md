@@ -132,6 +132,49 @@ Note: For the former method include `linux/version.h` and for the latter `linux/
 
 Short summary of low latency and RT kernel versions can be found [here](https://elixir.bootlin.com/linux/latest/source/kernel/Kconfig.preempt).
 
+# Building the kernel
+
+To build the kernel, simply do:
+
+```shell
+make ARCH=<arch> <defconfig>
+make ARCH=<arch>
+```
+
+## Known issues
+
+### Wrong `gcc` version
+
+Sometimes kernel build system will complain about not being able to find a header for your current `gcc` version. To fix this, you should do a temporary revert to `gcc-5` version:
+
+```shell
+sudo apt install gcc-5
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 50
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60
+
+update-alternatives --config gcc
+```
+
+Verify that `gcc-5` is indeed being used:
+
+```shell
+gcc -v
+```
+
+### Kernel does not support PIC mode
+
+To fix this, you should find a proper place in the kernel `Makefile` to add:
+
+```
+KBUILD_CFLAGS += $(call cc-option, -fno-pie)
+KBUILD_CFLAGS += $(call cc-option, -no-pie)
+KBUILD_AFLAGS += $(call cc-option, -fno-pie)
+KBUILD_AFLAGS += $(call cc-option, -no-pie)
+```
+
+Usually only the first line is necessary.
+
 # Boot parameters
 
 You can find information on boot parameters [here](https://elixir.bootlin.com/linux/v5.0/source/Documentation/admin-guide/kernel-parameters.txt).
