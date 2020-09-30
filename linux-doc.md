@@ -1563,6 +1563,8 @@ git apply --include=<path-pattern> <patch-file>
 
 # GDB basics
 
+## Breakpoints, run and step
+
 To insert a breakpoint by line number:
 
 ```
@@ -1609,6 +1611,22 @@ To continue execution until next breakpoint:
 
 ```
 (gdb) continue
+```
+
+## Symbol file
+
+To load a symbol file:
+
+```
+(gdb) symbol-file <symbol-filename>
+```
+
+## Find line from address
+
+To find line in source code corresponding to an address:
+
+```
+(gdb) info line *<address>
 ```
 
 # U-Boot
